@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Reçu Pronostic</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="container my-5">
+
+    <div class="card shadow-lg">
+
+        <div class="card-header bg-dark text-white text-center">
+            Reçu officiel de pronostic
+        </div>
+
+        <div class="card-body">
+
+            <h2>
+                World Cup 2026
+            </h2>
+
+            <hr>
+
+            <p>
+                <strong>Numéro :</strong>
+                {{ receipt.receipt_number }}
+            </p>
+
+            <p>
+                <strong>Nom :</strong>
+                {{ visitor.full_name }}
+            </p>
+
+            <p>
+                <strong>Semaine :</strong>
+                {{ receipt.week_number }}
+            </p>
+
+            <p>
+                <strong>Date :</strong>
+                {{ receipt.created_at }}
+            </p>
+
+            <hr>
+
+            <h4>Prédictions</h4>
+
+            <table class="table table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Match</th>
+                        <th>Pronostic</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for p in predictions %}
+
+                    <tr>
+                        <td>
+                            {{ p.match.team1 }}
+                            vs
+                            {{ p.match.team2 }}
+                        </td>
+
+                        <td>
+                            {{ p.score1 }}
+                            -
+                            {{ p.score2 }}
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            <div class="d-grid gap-2 mt-4">
+
+                <a href="/download-receipt/{{ receipt.id }}"
+                   class="btn btn-primary">
+                    Télécharger PDF
+                </a>
+
+                <button onclick="window.print()"
+                        class="btn btn-success">
+                    Imprimer
+                </button>
+
+                <a href="/predictions"
+                   class="btn btn-secondary">
+                    Retour aux pronostics
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

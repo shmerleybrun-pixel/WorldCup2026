@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meilleurs buteurs - World Cup 2026</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .navbar-brand-area {
+            min-width: 220px;
+        }
+
+        .navbar-center {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .admin-icon {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            margin-right: 5px;
+        }
+
+        .stat-card-pro {
+            border: none;
+            border-radius: 22px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ffffff, #f4f7ff);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            transition: 0.3s ease;
+        }
+
+        .stat-card-pro:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+        }
+
+        .stat-header-green {
+            background: linear-gradient(135deg, #006b3f, #00c853);
+            color: white;
+        }
+
+        .stat-header-dark {
+            background: linear-gradient(135deg, #111827, #374151);
+            color: white;
+        }
+
+        .stat-header-icon {
+            height: 32px;
+            width: auto;
+            object-fit: contain;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .table thead {
+            background: linear-gradient(135deg, #006b3f, #00c853);
+            color: white;
+        }
+
+        .table tbody tr:hover {
+            background: #f2fff7;
+        }
+
+        .rank-number {
+            display: inline-flex;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            justify-content: center;
+            align-items: center;
+            background: #111827;
+            color: white;
+            font-weight: 800;
+        }
+
+        .top-scorer-row:first-child {
+            background: linear-gradient(90deg, rgba(0, 200, 83, 0.22), #ffffff);
+        }
+
+        .goals-badge {
+            background: linear-gradient(135deg, #006b3f, #00c853);
+            color: white;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 991px) {
+            .navbar-center {
+                justify-content: flex-start;
+            }
+
+            .navbar-brand-area {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="world-bg"></div>
+
+{% include 'navbar.html' %}
+
+<main class="container mt-5 mb-5">
+
+    <div class="text-center mb-5">
+
+        <h1 class="mb-4 d-flex justify-content-center align-items-center">
+
+            <img src="{{ url_for('static', filename='images/player.png') }}"
+                 alt="Meilleurs buteurs"
+                 class="me-3"
+                 style="width:80px; height:auto; background:none; border:none; box-shadow:none;">
+
+            Classement des meilleurs buteurs
+
+        </h1>
+
+        <p class="text-muted">
+            Coupe du Monde FIFA 2026
+        </p>
+
+    </div>
+
+    <div class="card stat-card-pro">
+
+        <div class="card-header stat-header-green text-center fw-bold">
+            <img src="{{ url_for('static', filename='images/ball.png') }}"
+                 alt="Buts"
+                 class="stat-header-icon">
+            Meilleurs buteurs
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-striped table-bordered align-middle text-center mb-0">
+
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Joueur</th>
+                            <th>Équipe</th>
+                            <th>Buts</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for joueur in joueurs %}
+
+                        <tr class="top-scorer-row">
+
+                            <td>
+                                <span class="rank-number">{{ loop.index }}</span>
+                            </td>
+
+                            <td>
+                                <strong>{{ joueur.player_name }}</strong>
+                            </td>
+
+                            <td>
+                                {{ joueur.team }}
+                            </td>
+
+                            <td>
+                                <span class="goals-badge">
+                                    {{ joueur.goals }}
+                                </span>
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+{% include 'footer.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

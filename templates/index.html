@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Cup 2026</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        body {
+            padding-top: 70px !important;
+        }
+
+        .hero-box {
+            margin-top: 0 !important;
+            padding-top: 10px !important;
+            padding-bottom: 35px !important;
+            min-height: 520px;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-cup-large {
+            width: 100%;
+            max-width: 230px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .hero-ball-large {
+            width: 100%;
+            max-width: 220px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .hero-title {
+            font-size: clamp(42px, 6vw, 84px);
+            font-weight: 900;
+        }
+
+        .hero-subtitle {
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .hero-description {
+            font-size: 18px;
+        }
+
+        .live-video-section {
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
+        .live-video-card {
+            max-width: 900px;
+            margin: auto;
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+        .live-video-box iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            border-radius: 0 0 18px 18px;
+        }
+
+        @media (max-width: 991px) {
+            body {
+                padding-top: 70px !important;
+            }
+
+            .hero-box {
+                min-height: auto;
+                padding-top: 20px !important;
+            }
+
+            .hero-cup-large,
+            .hero-ball-large {
+                max-width: 160px;
+                margin-bottom: 20px;
+            }
+
+            .live-video-box iframe {
+                height: 260px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="world-bg"></div>
+
+{% include 'navbar.html' %}
+
+<section class="hero-box">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+
+            <div class="col-lg-2 text-center text-lg-start">
+                <a href="{{ url_for('cup1') }}">
+                    <img src="{{ url_for('static', filename='images/cup1.png') }}"
+                         class="hero-cup-large"
+                         alt="Coupe du Monde">
+                </a>
+            </div>
+
+            <div class="col-lg-8 text-center">
+                <h1 class="hero-title">FIFA WORLD CUP 2026</h1>
+
+                <p class="hero-subtitle">Canada • Mexique • États-Unis</p>
+
+                <p class="hero-description">
+                    Tous les groupes, matchs, classements,
+                    statistiques et phase finale de la Coupe du Monde 2026.
+                </p>
+
+                <a href="/matches" class="btn btn-light btn-lg mt-3">
+                    Voir les matchs
+                </a>
+            </div>
+
+            <div class="col-lg-2 text-center text-lg-end">
+                <a href="{{ url_for('anecdotes') }}">
+                    <img src="{{ url_for('static', filename='images/ball.png') }}"
+                         class="hero-ball-large"
+                         alt="Anecdotes Coupe du Monde">
+                </a>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<div class="container mt-5">
+    <div class="row text-center">
+
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow-sm h-100 home-card">
+                <div class="card-body">
+                    <a href="/matches" title="Voir tous les matchs">
+                        <img src="{{ url_for('static', filename='images/ball.png') }}"
+                             alt="Matchs"
+                             class="dashboard-icon">
+                    </a>
+                    <h3>104</h3>
+                    <p>Matchs</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow-sm h-100 home-card">
+                <div class="card-body">
+                    <a href="/equipes" title="Voir les 48 équipes qualifiées">
+                        <img src="{{ url_for('static', filename='images/world.png') }}"
+                             alt="Équipes"
+                             class="dashboard-icon">
+                    </a>
+                    <h3>48</h3>
+                    <p>Équipes</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow-sm h-100 home-card">
+                <div class="card-body">
+                    <a href="/stadiums" title="Voir les 16 stades">
+                        <img src="{{ url_for('static', filename='images/stadium.png') }}"
+                             alt="Stades"
+                             class="dashboard-icon">
+                    </a>
+                    <h3>16</h3>
+                    <p>Stades</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="container mt-5 mb-5">
+
+    <div class="row text-center">
+
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <img src="{{ url_for('static', filename='images/group.png') }}"
+                         alt="Groupes"
+                         class="dashboard-icon">
+
+                    <h4>Groupes</h4>
+                    <p>Consultez les 12 groupes de la compétition.</p>
+                    <a href="/groups" class="btn btn-primary">Voir</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <img src="{{ url_for('static', filename='images/clas.png') }}"
+                         alt="Classements"
+                         class="dashboard-icon">
+
+                    <h4>Classements</h4>
+                    <p>Suivez les positions de chaque équipe.</p>
+                    <a href="/standings" class="btn btn-primary">Voir</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <img src="{{ url_for('static', filename='images/win.png') }}"
+                         alt="Phase finale"
+                         class="dashboard-icon">
+
+                    <h4>Phase finale</h4>
+                    <p>Des 16es de finale jusqu'à la finale.</p>
+                    <a href="/knockout" class="btn btn-danger">Voir</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {% if champion or meilleur_buteur or meilleur_passeur %}
+
+    <div class="row text-center mt-3">
+
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <img src="{{ url_for('static', filename='images/cup.png') }}"
+                         alt="Champion du Monde"
+                         class="dashboard-icon">
+
+                    <h4>Champion du Monde</h4>
+
+                    {% if champion %}
+                        <img src="https://flagcdn.com/64x48/{{ champion|country_code }}.png"
+                             class="match-big-flag my-2"
+                             alt="{{ champion }}">
+                        <h5 class="fw-bold">{{ champion }}</h5>
+                    {% else %}
+                        <p class="text-muted">À déterminer</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <img src="{{ url_for('static', filename='images/but.png') }}"
+                         alt="Meilleur buteur"
+                         class="dashboard-icon">
+
+                    <h4>Meilleur buteur</h4>
+
+                    {% if meilleur_buteur %}
+                        <h5 class="fw-bold">{{ meilleur_buteur.player_name }}</h5>
+                        <p>{{ meilleur_buteur.team }}</p>
+                        <span class="badge bg-success fs-6">
+                            {{ meilleur_buteur.goals }} buts
+                        </span>
+                    {% else %}
+                        <p class="text-muted">Aucun buteur enregistré</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <img src="{{ url_for('static', filename='images/pas.png') }}"
+                         alt="Meilleur passeur"
+                         class="dashboard-icon">
+
+                    <h4>Meilleur passeur</h4>
+
+                    {% if meilleur_passeur %}
+                        <h5 class="fw-bold">{{ meilleur_passeur.player_name }}</h5>
+                        <p>{{ meilleur_passeur.team }}</p>
+                        <span class="badge bg-primary fs-6">
+                            {{ meilleur_passeur.assists }} passes
+                        </span>
+                    {% else %}
+                        <p class="text-muted">Aucun passeur enregistré</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+<div class="container mt-5 mb-5">
+
+    <div class="card shadow-lg border-0 news-home-card">
+
+        <div class="card-header text-center fw-bold text-white">
+            Actualités du Mondial 2026
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-lg-4 mb-4">
+                    <div class="news-card h-100">
+                        <h4>Haïti de retour après 52 ans</h4>
+                        <p>
+                            Les Grenadiers retrouvent la Coupe du Monde pour la première fois depuis 1974.
+                        </p>
+                        <a href="/anecdotes" class="btn btn-primary btn-sm">
+                            Lire plus
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 mb-4">
+                    <div class="news-card h-100">
+                        <h4>Un Mondial à 48 équipes</h4>
+                        <p>
+                            Le tournoi 2026 devient le plus grand de l’histoire avec 104 matchs.
+                        </p>
+                        <a href="/groups" class="btn btn-primary btn-sm">
+                            Voir les groupes
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 mb-4">
+                    <div class="news-card h-100">
+                        <h4>Les nouveaux visages du tournoi</h4>
+                        <p>
+                            Curaçao, Cabo Verde, Jordanie et Ouzbékistan découvrent la Coupe du Monde.
+                        </p>
+                        <a href="/equipes" class="btn btn-primary btn-sm">
+                            Voir les équipes
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="container mt-5 mb-5">
+
+    <h2 class="text-center fw-bold mb-4">
+        <img src="{{ url_for('static', filename='images/ball.png') }}"
+             alt="Matchs du jour"
+             class="title-icon">
+
+        Matchs du jour - {{ today }}
+    </h2>
+
+    {% if matchs_du_jour %}
+
+        <div class="row">
+
+            {% for match in matchs_du_jour %}
+
+            <div class="col-lg-6 mb-4">
+                <div class="card match-day-card shadow-sm h-100">
+
+                    <div class="card-header text-center fw-bold bg-primary text-white">
+                        Groupe {{ match.group_name }} • {{ match.match_time }}
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row align-items-center text-center">
+
+                            <div class="col-5">
+                                <img src="https://flagcdn.com/64x48/{{ match.team1|country_code }}.png"
+                                     alt="{{ match.team1 }}"
+                                     class="match-big-flag">
+
+                                <h5 class="mt-2 fw-bold">
+                                    {{ match.team1 }}
+                                </h5>
+                            </div>
+
+                            <div class="col-2">
+
+                                {% if match.score1 is not none and match.score2 is not none %}
+
+                                    <span class="badge bg-success fs-5">
+                                        {{ match.score1 }} - {{ match.score2 }}
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="vs-badge">
+                                        VS
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                            <div class="col-5">
+                                <img src="https://flagcdn.com/64x48/{{ match.team2|country_code }}.png"
+                                     alt="{{ match.team2 }}"
+                                     class="match-big-flag">
+
+                                <h5 class="mt-2 fw-bold">
+                                    {{ match.team2 }}
+                                </h5>
+                            </div>
+
+                        </div>
+
+                        <hr>
+
+                        <div class="text-center text-muted">
+                            🏟️ {{ match.stadium }} <br>
+                            📍 {{ match.city }}
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="alert alert-info text-center">
+            Aucun match prévu aujourd'hui.
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% if live_video %}
+<section class="live-video-section">
+    <div class="container">
+
+        <div class="card shadow-lg border-0 live-video-card">
+
+            <div class="card-header bg-danger text-white text-center fw-bold">
+                🔴 {{ live_video.title }}
+            </div>
+
+            <div class="card-body p-0 text-center live-video-box">
+                {{ live_video.embed_url | safe }}
+            </div>
+
+        </div>
+
+    </div>
+</section>
+{% endif %}
+
+{% include 'footer.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

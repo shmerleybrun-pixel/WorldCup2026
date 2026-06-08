@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Paramètres admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="container mt-4">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark rounded mb-4 px-3">
+    <a class="navbar-brand" href="/admin/matchs">Admin World Cup 2026</a>
+
+    <div class="navbar-nav ms-auto">
+        <a class="nav-link" href="/admin/matchs">Matchs de groupes</a>
+        <a class="nav-link" href="/admin/knockout">Phase finale</a>
+        <a class="nav-link active" href="/admin/settings">⚙️ Paramètres</a>
+        <a class="nav-link text-danger" href="/logout">🚪 Déconnexion</a>
+    </div>
+</nav>
+
+<h1 class="mb-4">Paramètres administrateur</h1>
+
+<div class="card">
+    <div class="card-body">
+
+        <form method="POST">
+
+            <div class="mb-3">
+                <label class="form-label">Nom d'utilisateur</label>
+                <input
+                    type="text"
+                    name="username"
+                    class="form-control"
+                    value="{{ admin.username }}"
+                    required
+                >
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Nouveau mot de passe</label>
+                <input
+                    type="password"
+                    name="password"
+                    class="form-control"
+                    placeholder="Laisser vide pour garder le mot de passe actuel"
+                >
+            </div>
+
+            <button type="submit" class="btn btn-success">
+                💾 Enregistrer les paramètres
+            </button>
+
+            <a href="/admin/matchs" class="btn btn-secondary ms-2">
+                Retour
+            </a>
+
+        </form>
+
+    </div>
+</div>
+
+</body>
+</html>

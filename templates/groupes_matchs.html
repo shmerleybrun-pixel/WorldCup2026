@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stades Coupe du Monde 2026</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="container mt-4">
+
+<nav>
+    <a href="/">Accueil</a>
+    <a href="/groups">Groupes</a>
+    <a href="/matches">Matchs</a>
+    <a href="/standings">Classement</a>
+    <a href="/stadiums">Stades</a>
+</nav>
+
+<h1>Coupe du Monde 2026</h1>
+
+<h2>1ère phase - Phase de groupes</h2>
+
+{% for group_name, matchs in groups.items() %}
+
+    <h3>Groupe {{ group_name }}</h3>
+
+    <ul>
+    {% for match in matchs %}
+        <li>
+
+<strong>Match {{ match.match_number }}</strong><br>
+
+{{ match.team1 }} - {{ match.team2 }}
+
+{% if match.score1 is not none and match.score2 is not none %}
+    ({{ match.score1 }} - {{ match.score2 }})
+{% else %}
+    <span style="color:gray;">(Non joué)</span>
+{% endif %}
+
+<br>
+
+{{ match.match_date }}
+à
+{{ match.match_time }}
+
+<br>
+
+{{ match.stadium }}
+
+</li>
+    {% endfor %}
+    </ul>
+
+{% endfor %}
+
+<hr>
+
+<h2>Phase éliminatoire</h2>
+
+<p>Les matchs de la phase éliminatoire seront ajoutés automatiquement après les résultats de la phase de groupes.</p>
+
+<ul>
+    <li>32es de finale</li>
+    <li>16es de finale</li>
+    <li>8es de finale</li>
+    <li>Quarts de finale</li>
+    <li>Demi-finales</li>
+    <li>Finale</li>
+</ul>
+
+</body>
+</html>

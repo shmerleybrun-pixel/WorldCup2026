@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matchs - World Cup 2026</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .navbar-brand-area {
+            min-width: 220px;
+        }
+
+        .navbar-center {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .admin-icon {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            margin-right: 5px;
+        }
+
+        .stat-card-pro {
+            border: none;
+            border-radius: 22px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ffffff, #f4f7ff);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            transition: 0.3s ease;
+        }
+
+        .stat-card-pro:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+        }
+
+        .stat-header-blue {
+            background: linear-gradient(135deg, #002b5c, #0066ff);
+            color: white;
+        }
+
+        .stat-header-dark {
+            background: linear-gradient(135deg, #111827, #374151);
+            color: white;
+        }
+
+        .stat-header-green {
+            background: linear-gradient(135deg, #006b3f, #00c853);
+            color: white;
+        }
+
+        .stat-header-red {
+            background: linear-gradient(135deg, #8b0000, #ff1744);
+            color: white;
+        }
+
+        .stat-header-icon {
+            height: 28px;
+            width: auto;
+            object-fit: contain;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .match-info-icon {
+            height: 20px;
+            width: auto;
+            object-fit: contain;
+            margin-right: 6px;
+        }
+
+        .calendar-date-icon {
+            height: 26px;
+            width: auto;
+            object-fit: contain;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 991px) {
+            .navbar-center {
+                justify-content: flex-start;
+            }
+
+            .navbar-brand-area {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="world-bg"></div>
+
+{% include 'navbar.html' %}
+
+<main class="container my-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+
+        <h1 class="fw-bold mb-0 d-flex align-items-center">
+            <img src="{{ url_for('static', filename='images/ball.png') }}"
+                 alt="Matchs"
+                 class="title-icon">
+
+            Tous les matchs
+        </h1>
+
+        <div class="d-flex gap-2 flex-wrap">
+
+            <button type="button" class="btn btn-primary" onclick="showAllMatches()">
+                Tous les matchs
+            </button>
+
+            <button type="button" class="btn btn-success" onclick="showCalendar()">
+                Calendrier
+            </button>
+
+            <a href="/knockout" class="btn btn-danger d-flex align-items-center">
+                <img src="{{ url_for('static', filename='images/cup.png') }}"
+                     alt="Coupe du Monde"
+                     class="knockout-icon">
+
+                Phase finale
+            </a>
+
+        </div>
+
+    </div>
+
+    <section id="allMatches">
+
+        <div class="row">
+
+            {% for match in matchs %}
+
+            <div class="col-lg-6 mb-4">
+                <div class="card stat-card-pro h-100">
+
+                    <div class="card-header stat-header-dark fw-bold text-center">
+                        <img src="{{ url_for('static', filename='images/ball.png') }}"
+                             alt="Match"
+                             class="stat-header-icon">
+                        Match {{ match.match_number }} • Groupe {{ match.group_name }}
+                    </div>
+
+                    <div class="card-body text-center">
+
+                        <div class="row align-items-center justify-content-center">
+
+                            <div class="col-4 text-center fw-bold">
+                                <img src="https://flagcdn.com/48x36/{{ match.team1|country_code }}.png"
+                                     alt="{{ match.team1 }}"
+                                     class="match-flag-big">
+
+                                <div class="mt-2">
+                                    {{ match.team1 }}
+                                </div>
+                            </div>
+
+                            <div class="col-4 text-center score-center">
+
+                                {% if match.score1 is not none and match.score2 is not none %}
+
+                                    <span class="score-badge">
+                                        {{ match.score1 }} - {{ match.score2 }}
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="vs-badge">
+                                        VS
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                            <div class="col-4 text-center fw-bold">
+                                <img src="https://flagcdn.com/48x36/{{ match.team2|country_code }}.png"
+                                     alt="{{ match.team2 }}"
+                                     class="match-flag-big">
+
+                                <div class="mt-2">
+                                    {{ match.team2 }}
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <hr>
+
+                        <p class="mb-1">
+                            <img src="{{ url_for('static', filename='images/calender.png') }}"
+                                 alt="Date"
+                                 class="match-info-icon">
+                            {{ match.match_date|date_fr }}
+
+                            • {{ match.match_time }}
+                        </p>
+
+                        <p class="text-muted mb-0">
+                            <img src="{{ url_for('static', filename='images/stadium.png') }}"
+                                 alt="Stade"
+                                 class="match-info-icon">
+                            {{ match.stadium }} • {{ match.city }}
+                        </p>
+
+                    </div>
+
+                </div>
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+    <section id="calendarView" style="display:none;">
+
+        {% for date, matchs_date in calendrier.items() %}
+
+        <div class="card stat-card-pro mb-4">
+
+            <div class="card-header stat-header-blue fw-bold text-center">
+                <img src="{{ url_for('static', filename='images/calender.png') }}"
+                     alt="Calendrier"
+                     class="calendar-date-icon">
+                {{ date|date_fr }}
+            </div>
+
+            <div class="card-body">
+
+                {% for match in matchs_date %}
+
+                <div class="calendar-match-row">
+
+                    <div class="row align-items-center text-center">
+
+                        <div class="col-md-2 mb-2 mb-md-0">
+                            <span class="badge bg-primary fs-6">
+                                {{ match.match_time }}
+                            </span>
+                        </div>
+
+                        <div class="col-md-4 calendar-team">
+                            <img src="https://flagcdn.com/32x24/{{ match.team1|country_code }}.png"
+                                 alt="{{ match.team1 }}"
+                                 class="small-flag">
+
+                            <span>{{ match.team1 }}</span>
+                        </div>
+
+                        <div class="col-md-2 score-center">
+
+                            {% if match.score1 is not none and match.score2 is not none %}
+
+                                <span class="calendar-score-badge">
+                                    {{ match.score1 }} - {{ match.score2 }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="calendar-vs-badge">
+                                    VS
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                        <div class="col-md-4 calendar-team">
+                            <img src="https://flagcdn.com/32x24/{{ match.team2|country_code }}.png"
+                                 alt="{{ match.team2 }}"
+                                 class="small-flag">
+
+                            <span>{{ match.team2 }}</span>
+                        </div>
+
+                        <div class="col-12 text-muted mt-2">
+                            <img src="{{ url_for('static', filename='images/stadium.png') }}"
+                                 alt="Stade"
+                                 class="match-info-icon">
+                            {{ match.stadium }} • {{ match.city }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% if not loop.last %}
+                    <hr>
+                {% endif %}
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </section>
+
+</main>
+
+{% include 'footer.html' %}
+
+<script>
+function showCalendar() {
+    document.getElementById("allMatches").style.display = "none";
+    document.getElementById("calendarView").style.display = "block";
+}
+
+function showAllMatches() {
+    document.getElementById("calendarView").style.display = "none";
+    document.getElementById("allMatches").style.display = "block";
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

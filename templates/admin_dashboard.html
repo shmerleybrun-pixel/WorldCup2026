@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Admin</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="world-bg"></div>
+
+{% include 'navbar.html' %}
+
+<div class="container my-5">
+
+    <h1 class="mb-5 text-center">
+        Dashboard Administration
+    </h1>
+
+    <div class="row">
+
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-lg border-0 text-center">
+                <div class="card-header bg-primary text-white">
+                    Visiteurs
+                </div>
+
+                <div class="card-body">
+                    <h2>{{ total_visitors }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-lg border-0 text-center">
+                <div class="card-header bg-success text-white">
+                    Pronostics
+                </div>
+
+                <div class="card-body">
+                    <h2>{{ total_predictions }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-lg border-0 text-center">
+                <div class="card-header bg-warning">
+                    Groupes privés
+                </div>
+
+                <div class="card-body">
+                    <h2>{{ total_groups }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-lg border-0 text-center">
+                <div class="card-header bg-danger text-white">
+                    Matchs joués
+                </div>
+
+                <div class="card-body">
+                    <h2>{{ matches_played }}/{{ total_matches }}</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

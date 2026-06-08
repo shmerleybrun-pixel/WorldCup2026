@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anecdotes - World Cup 2026</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        body {
+            background: #f4f6fb;
+            font-family: Arial, sans-serif;
+        }
+
+        .anecdote-page {
+            max-width: 1250px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        .stat-card-pro {
+            border: none;
+            border-radius: 22px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ffffff, #f4f7ff);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            transition: 0.3s ease;
+        }
+
+        .stat-card-pro:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+        }
+
+        .stat-header-blue {
+            background: linear-gradient(135deg, #002b5c, #0066ff);
+            color: white;
+        }
+
+        .stat-header-green {
+            background: linear-gradient(135deg, #006b3f, #00c853);
+            color: white;
+        }
+
+        .stat-header-red {
+            background: linear-gradient(135deg, #8b0000, #ff1744);
+            color: white;
+        }
+
+        .stat-header-gold {
+            background: linear-gradient(135deg, #8a6d00, #ffcc00);
+            color: #111;
+        }
+
+        .stat-header-purple {
+            background: linear-gradient(135deg, #4a148c, #9c27b0);
+            color: white;
+        }
+
+        .stat-header-dark {
+            background: linear-gradient(135deg, #111827, #374151);
+            color: white;
+        }
+
+        .stat-header-icon {
+            height: 32px;
+            width: auto;
+            object-fit: contain;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .stat-icon-img {
+            height: 60px;
+            width: auto;
+            object-fit: contain;
+            margin-bottom: 12px;
+        }
+
+        .anecdote-hero {
+            background: linear-gradient(135deg, #06142e, #103b80);
+            color: white;
+            padding: 45px;
+            border-radius: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, .22);
+        }
+
+        .anecdote-hero h1 {
+            font-size: 42px;
+            font-weight: 800;
+        }
+
+        .section-box {
+            border: none;
+            border-radius: 22px;
+            background: linear-gradient(135deg, #ffffff, #f4f7ff);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 16px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .section-body {
+            padding: 25px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 15px;
+        }
+
+        .info-card {
+            background: #ffffff;
+            padding: 18px;
+            border-radius: 18px;
+            border-left: 5px solid #0066ff;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+            transition: 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.14);
+        }
+
+        .special-card {
+            border-left: 5px solid #d60000;
+            background: linear-gradient(135deg, #fff7f7, #ffffff);
+        }
+
+        .rule-card {
+            border-left: 5px solid #198754;
+            background: linear-gradient(135deg, #f3fff8, #ffffff);
+        }
+
+        .flag-img {
+            width: 34px;
+            height: 24px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #002b5c, #0066ff);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 8px 18px rgba(0, 102, 255, .25);
+        }
+
+        .back-btn:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .back-icon {
+            height: 22px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .badge-rule {
+            background: linear-gradient(135deg, #002b5c, #0066ff);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin: 4px;
+            font-weight: 600;
+        }
+
+        .small-note {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .team-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .fact-icon {
+            height: 24px;
+            width: auto;
+            object-fit: contain;
+            margin-right: 8px;
+        }
+
+        .simple-list li {
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="anecdote-page">
+
+    <a href="/" class="back-btn">
+        <img src="{{ url_for('static', filename='images/world.png') }}"
+             alt="Accueil"
+             class="back-icon">
+        Retour à l’accueil
+    </a>
+
+    <div class="anecdote-hero">
+        <img src="{{ url_for('static', filename='images/ball.png') }}"
+             alt="Anecdotes"
+             class="stat-icon-img">
+
+        <h1>Anecdotes du Mondial</h1>
+        <p>
+            Records, surprises, nouvelles règles 2026, surnoms des équipes,
+            infos rares et faits insolites autour de la Coupe du Monde.
+        </p>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header stat-header-blue">
+            <img src="{{ url_for('static', filename='images/world.png') }}"
+                 alt="Nouveautés"
+                 class="stat-header-icon">
+            Nouveautés du Mondial 2026
+        </div>
+
+        <div class="section-body">
+            <div class="mt-3">
+                <span class="badge-rule">48 équipes</span>
+                <span class="badge-rule">12 groupes de 4</span>
+                <span class="badge-rule">104 matchs</span>
+                <span class="badge-rule">32 équipes en phase finale</span>
+                <span class="badge-rule">3 pays organisateurs</span>
+                <span class="badge-rule">Canada • Mexique • États-Unis</span>
+            </div>
+
+            <p class="mt-3">
+                Le Mondial 2026 est le plus grand de l’histoire. Les deux premiers de chaque groupe
+                et les huit meilleurs troisièmes se qualifient pour la phase finale.
+            </p>
+
+            <p class="small-note mb-0">
+                Format 2026 : 48 équipes, 12 groupes de 4, 104 matchs et une phase finale à 32 équipes.
+            </p>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header stat-header-green">
+            <img src="{{ url_for('static', filename='images/clas.png') }}"
+                 alt="Règles"
+                 class="stat-header-icon">
+            Nouvelles règles qui peuvent influencer les matchs
+        </div>
+
+        <div class="section-body">
+            <div class="info-grid">
+
+                <div class="info-card rule-card">
+                    <strong>Gardien : règle des 8 secondes</strong>
+                    <p>
+                        Le gardien ne peut pas garder le ballon trop longtemps avec les mains.
+                        Si le gardien contrôle le ballon avec les mains ou les bras pendant plus de 8 secondes,
+                        l’arbitre accorde un corner à l’équipe adverse.
+                    </p>
+                    <p class="small-note">Le décompte visuel de l’arbitre commence à 5 secondes.</p>
+                </div>
+
+                <div class="info-card rule-card">
+                    <strong>Corner au lieu du coup franc indirect</strong>
+                    <p>
+                        Avant, une perte de temps du gardien pouvait donner un coup franc indirect.
+                        Avec la nouvelle règle, la sanction devient plus dangereuse :
+                        un corner pour l’adversaire.
+                    </p>
+                </div>
+
+                <div class="info-card rule-card">
+                    <strong>Protocole “seul le capitaine”</strong>
+                    <p>
+                        L’arbitre peut limiter les discussions avec les joueurs.
+                        Quand il active ce protocole, seul le capitaine doit s’approcher pour parler.
+                    </p>
+                </div>
+
+                <div class="info-card rule-card">
+                    <strong>Cartons et fair-play</strong>
+                    <p>
+                        Les cartons peuvent compter dans le classement si des équipes sont à égalité.
+                        Le fair-play peut donc devenir décisif.
+                    </p>
+                </div>
+
+                <div class="info-card rule-card">
+                    <strong>VAR et décisions importantes</strong>
+                    <p>
+                        Le VAR reste essentiel pour les buts, penalties, cartons rouges directs
+                        et erreurs d’identité.
+                    </p>
+                </div>
+
+                <div class="info-card rule-card">
+                    <strong>Gestion du temps de jeu</strong>
+                    <p>
+                        Gardiens, remplacements, protestations, blessures tactiques et reprises de jeu
+                        seront observés de plus près.
+                    </p>
+                </div>
+
+            </div>
+
+            <p class="small-note mt-3 mb-0">
+                Ces changements viennent des Lois du Jeu 2025/26 de l’IFAB et peuvent avoir un impact direct.
+            </p>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header stat-header-red">
+            <img src="{{ url_for('static', filename='images/world.png') }}"
+                 alt="Haïti"
+                 class="stat-header-icon">
+            Haïti : le retour historique après 52 ans
+        </div>
+
+        <div class="section-body">
+            <div class="info-card special-card">
+                <div class="team-line">
+                    <img src="https://flagcdn.com/48x36/ht.png" class="flag-img" alt="Haïti">
+                    <strong>Haïti - Les Grenadiers</strong>
+                </div>
+
+                <p>
+                    Haïti revient en Coupe du Monde masculine pour la première fois depuis 1974.
+                    Ce retour en 2026 marque une attente de 52 ans.
+                </p>
+
+                <p>
+                    C’est seulement la deuxième participation d’Haïti à une Coupe du Monde masculine.
+                    Cette qualification est historique pour le football haïtien et pour toute la diaspora.
+                </p>
+
+                <p class="mb-0">
+                    Haïti est dans le groupe C avec le Brésil, le Maroc et l’Écosse.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header stat-header-purple">
+            <img src="{{ url_for('static', filename='images/cup.png') }}"
+                 alt="Premières participations"
+                 class="stat-header-icon">
+            Les équipes qui font leur première apparition
+        </div>
+
+        <div class="section-body">
+            <p>
+                Quatre nations vont découvrir la Coupe du Monde en 2026.
+            </p>
+
+            <div class="info-grid">
+
+                <div class="info-card special-card">
+                    <div class="team-line">
+                        <img src="https://flagcdn.com/48x36/cw.png" class="flag-img" alt="Curaçao">
+                        <strong>Curaçao</strong>
+                    </div>
+                    <p>Première participation à une Coupe du Monde.</p>
+                </div>
+
+                <div class="info-card special-card">
+                    <div class="team-line">
+                        <img src="https://flagcdn.com/48x36/cv.png" class="flag-img" alt="Cabo Verde">
+                        <strong>Cabo Verde</strong>
+                    </div>
+                    <p>Première participation à une Coupe du Monde.</p>
+                </div>
+
+                <div class="info-card special-card">
+                    <div class="team-line">
+                        <img src="https://flagcdn.com/48x36/jo.png" class="flag-img" alt="Jordanie">
+                        <strong>Jordanie</strong>
+                    </div>
+                    <p>Première participation à une Coupe du Monde.</p>
+                </div>
+
+                <div class="info-card special-card">
+                    <div class="team-line">
+                        <img src="https://flagcdn.com/48x36/uz.png" class="flag-img" alt="Ouzbékistan">
+                        <strong>Ouzbékistan</strong>
+                    </div>
+                    <p>Première participation à une Coupe du Monde.</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header stat-header-gold">
+            <img src="{{ url_for('static', filename='images/ball.png') }}"
+                 alt="Infos rares"
+                 class="stat-header-icon">
+            Ce que beaucoup de visiteurs ne savent pas
+        </div>
+
+        <div class="section-body">
+            <div class="info-grid">
+
+                <div class="info-card"><strong>Un champion peut jouer 8 matchs</strong><p>Avec la nouvelle phase finale à 32 équipes.</p></div>
+                <div class="info-card"><strong>Les troisièmes peuvent se qualifier</strong><p>Les huit meilleurs troisièmes continuent le tournoi.</p></div>
+                <div class="info-card"><strong>Le Mexique entre dans l’histoire</strong><p>1970, 1986 et 2026.</p></div>
+                <div class="info-card"><strong>La profondeur du banc devient cruciale</strong><p>Plus de matchs signifie plus de fatigue.</p></div>
+                <div class="info-card"><strong>Les cartons peuvent coûter cher</strong><p>Le fair-play peut départager les équipes.</p></div>
+                <div class="info-card"><strong>Un Mondial plus ouvert</strong><p>Le passage à 48 équipes donne une vraie chance à plus de nations.</p></div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header stat-header-dark">
+            <img src="{{ url_for('static', filename='images/stadium.png') }}"
+                 alt="Grandes anecdotes"
+                 class="stat-header-icon">
+            Grandes anecdotes
+        </div>
+
+        <div class="section-body">
+            <div class="info-grid">
+
+                <div class="info-card"><strong>Voyage en bateau</strong><p>Lors des premières éditions, certaines équipes voyageaient plusieurs semaines en bateau.</p></div>
+                <div class="info-card"><strong>La surprise américaine</strong><p>En 1950, les États-Unis ont battu l’Angleterre.</p></div>
+                <div class="info-card"><strong>Le Maroc en 2022</strong><p>Le Maroc est devenu la première équipe africaine en demi-finales.</p></div>
+                <div class="info-card"><strong>Le Brésil toujours présent</strong><p>Le Brésil est la seule nation à avoir participé à toutes les Coupes du Monde masculines.</p></div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header stat-header-blue">
+            <img src="{{ url_for('static', filename='images/cup.png') }}"
+                 alt="Records"
+                 class="stat-header-icon">
+            Records légendaires
+        </div>
+
+        <div class="section-body">
+            <div class="info-grid">
+
+                <div class="info-card"><strong>Miroslav Klose</strong><p>Meilleur buteur historique de la Coupe du Monde avec 16 buts.</p></div>
+                <div class="info-card"><strong>Pelé</strong><p>Seul joueur à avoir remporté trois Coupes du Monde comme joueur.</p></div>
+                <div class="info-card"><strong>Lionel Messi</strong><p>Joueur ayant disputé le plus de matchs en phase finale.</p></div>
+                <div class="info-card"><strong>Essam El Hadary</strong><p>Plus vieux joueur à avoir disputé un match de Coupe du Monde.</p></div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header stat-header-green">
+            <img src="{{ url_for('static', filename='images/world.png') }}"
+                 alt="Surnoms"
+                 class="stat-header-icon">
+            Surnoms des équipes
+        </div>
+
+        <div class="section-body">
+            <div class="info-grid">
+
+                <div class="info-card"><img src="https://flagcdn.com/48x36/ar.png" class="flag-img" alt="Argentine"><strong>Argentine</strong><p>La Albiceleste</p></div>
+                <div class="info-card"><img src="https://flagcdn.com/48x36/br.png" class="flag-img" alt="Brésil"><strong>Brésil</strong><p>La Seleção</p></div>
+                <div class="info-card"><img src="https://flagcdn.com/48x36/fr.png" class="flag-img" alt="France"><strong>France</strong><p>Les Bleus</p></div>
+                <div class="info-card"><img src="https://flagcdn.com/48x36/ht.png" class="flag-img" alt="Haïti"><strong>Haïti</strong><p>Les Grenadiers</p></div>
+                <div class="info-card"><img src="https://flagcdn.com/48x36/ma.png" class="flag-img" alt="Maroc"><strong>Maroc</strong><p>Les Lions de l’Atlas</p></div>
+                <div class="info-card"><img src="https://flagcdn.com/48x36/sn.png" class="flag-img" alt="Sénégal"><strong>Sénégal</strong><p>Les Lions de la Téranga</p></div>
+                <div class="info-card"><img src="https://flagcdn.com/48x36/us.png" class="flag-img" alt="États-Unis"><strong>États-Unis</strong><p>Stars and Stripes</p></div>
+                <div class="info-card"><img src="https://flagcdn.com/48x36/jp.png" class="flag-img" alt="Japon"><strong>Japon</strong><p>Samurai Blue</p></div>
+                <div class="info-card"><img src="https://flagcdn.com/48x36/cv.png" class="flag-img" alt="Cabo Verde"><strong>Cabo Verde</strong><p>Les Requins Bleus</p></div>
+                <div class="info-card"><img src="https://flagcdn.com/48x36/gb-sct.png" class="flag-img" alt="Écosse"><strong>Écosse</strong><p>The Tartan Army</p></div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header stat-header-red">
+            <img src="{{ url_for('static', filename='images/player.png') }}"
+                 alt="Équipes"
+                 class="stat-header-icon">
+            Informations clés sur les équipes
+        </div>
+
+        <div class="section-body">
+            <div class="info-grid">
+
+                <div class="info-card"><img src="https://flagcdn.com/48x36/ca.png" class="flag-img" alt="Canada"><strong>Canada</strong><p>Coorganisateur 2026. Zone : CONCACAF. Capitale : Ottawa.</p></div>
+                <div class="info-card"><img src="https://flagcdn.com/48x36/mx.png" class="flag-img" alt="Mexique"><strong>Mexique</strong><p>Coorganisateur 2026. Zone : CONCACAF. Capitale : Mexico.</p></div>
+                <div class="info-card"><img src="https://flagcdn.com/48x36/us.png" class="flag-img" alt="États-Unis"><strong>États-Unis</strong><p>Coorganisateur 2026. Zone : CONCACAF. Capitale : Washington D.C.</p></div>
+                <div class="info-card special-card"><img src="https://flagcdn.com/48x36/ht.png" class="flag-img" alt="Haïti"><strong>Haïti</strong><p>Surnom : Les Grenadiers. Zone : CONCACAF. Capitale : Port-au-Prince.</p><p>Retour au Mondial après 52 ans d’attente.</p></div>
+                <div class="info-card"><img src="https://flagcdn.com/48x36/br.png" class="flag-img" alt="Brésil"><strong>Brésil</strong><p>Nation la plus titrée. Surnom : Seleção. Zone : CONMEBOL.</p></div>
+                <div class="info-card"><img src="https://flagcdn.com/48x36/fr.png" class="flag-img" alt="France"><strong>France</strong><p>Surnom : Les Bleus. Zone : UEFA. Capitale : Paris.</p></div>
+                <div class="info-card"><img src="https://flagcdn.com/48x36/ma.png" class="flag-img" alt="Maroc"><strong>Maroc</strong><p>Première équipe africaine demi-finaliste du Mondial. Zone : CAF.</p></div>
+                <div class="info-card"><img src="https://flagcdn.com/48x36/jp.png" class="flag-img" alt="Japon"><strong>Japon</strong><p>Surnom : Samurai Blue. Zone : AFC. Capitale : Tokyo.</p></div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header stat-header-purple">
+            <img src="{{ url_for('static', filename='images/cup.png') }}"
+                 alt="Mascottes"
+                 class="stat-header-icon">
+            Mascottes célèbres
+        </div>
+
+        <div class="section-body">
+            <div class="info-grid">
+                <div class="info-card"><strong>1966</strong><p>World Cup Willie, première mascotte officielle.</p></div>
+                <div class="info-card"><strong>1998</strong><p>Footix, le coq bleu de la Coupe du Monde en France.</p></div>
+                <div class="info-card"><strong>2010</strong><p>Zakumi, le léopard sud-africain.</p></div>
+                <div class="info-card"><strong>2014</strong><p>Fuleco, le tatou brésilien.</p></div>
+                <div class="info-card"><strong>2018</strong><p>Zabivaka, le loup russe.</p></div>
+                <div class="info-card"><strong>2022</strong><p>La’eeb, mascotte du Mondial au Qatar.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header stat-header-gold">
+            <img src="{{ url_for('static', filename='images/ball.png') }}"
+                 alt="Ballons"
+                 class="stat-header-icon">
+            Ballons officiels célèbres
+        </div>
+
+        <div class="section-body">
+            <div class="info-grid">
+                <div class="info-card"><strong>Telstar</strong><p>Ballon iconique de 1970.</p></div>
+                <div class="info-card"><strong>Azteca</strong><p>Ballon mythique du Mondial 1986 au Mexique.</p></div>
+                <div class="info-card"><strong>Fevernova</strong><p>Ballon de la Coupe du Monde 2002.</p></div>
+                <div class="info-card"><strong>Jabulani</strong><p>Ballon très discuté du Mondial 2010.</p></div>
+                <div class="info-card"><strong>Brazuca</strong><p>Ballon officiel du Mondial 2014 au Brésil.</p></div>
+                <div class="info-card"><strong>Al Rihla</strong><p>Ballon officiel du Mondial 2022 au Qatar.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header stat-header-dark">
+            <img src="{{ url_for('static', filename='images/world.png') }}"
+                 alt="Le saviez-vous"
+                 class="stat-header-icon">
+            Le saviez-vous ?
+        </div>
+
+        <div class="section-body">
+            <ul class="simple-list">
+                <li><img src="{{ url_for('static', filename='images/cup.png') }}" class="fact-icon" alt="">Le Brésil est la seule nation à avoir participé à toutes les Coupes du Monde masculines.</li>
+                <li><img src="{{ url_for('static', filename='images/player.png') }}" class="fact-icon" alt="">Pelé avait seulement 17 ans lorsqu’il a marqué en finale de Coupe du Monde.</li>
+                <li><img src="{{ url_for('static', filename='images/ball.png') }}" class="fact-icon" alt="">La Coupe du Monde 2026 aura une phase finale à 32 équipes.</li>
+                <li><img src="{{ url_for('static', filename='images/stadium.png') }}" class="fact-icon" alt="">Une équipe finaliste en 2026 pourra jouer jusqu’à 8 matchs.</li>
+                <li><img src="{{ url_for('static', filename='images/world.png') }}" class="fact-icon" alt="">Le Mexique est le premier pays à accueillir des matchs dans trois éditions masculines différentes.</li>
+                <li><img src="{{ url_for('static', filename='images/world.png') }}" class="fact-icon" alt="">Haïti revient au Mondial après 52 ans d’absence.</li>
+                <li><img src="{{ url_for('static', filename='images/cup.png') }}" class="fact-icon" alt="">Curaçao, Cabo Verde, Jordanie et Ouzbékistan participent pour la première fois.</li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+{% include 'footer.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

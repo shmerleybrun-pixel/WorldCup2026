@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Équipes qualifiées - World Cup 2026</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .navbar-brand-area {
+            min-width: 220px;
+        }
+
+        .navbar-center {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .admin-icon {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            margin-right: 5px;
+        }
+
+        .stat-card-pro {
+            border: none;
+            border-radius: 22px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ffffff, #f4f7ff);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            transition: 0.3s ease;
+        }
+
+        .stat-card-pro:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+        }
+
+        .stat-header-blue {
+            background: linear-gradient(135deg, #002b5c, #0066ff);
+            color: white;
+        }
+
+        .stat-header-green {
+            background: linear-gradient(135deg, #006b3f, #00c853);
+            color: white;
+        }
+
+        .stat-header-red {
+            background: linear-gradient(135deg, #8b0000, #ff1744);
+            color: white;
+        }
+
+        .stat-header-gold {
+            background: linear-gradient(135deg, #8a6d00, #ffcc00);
+            color: #111;
+        }
+
+        .stat-header-purple {
+            background: linear-gradient(135deg, #4a148c, #9c27b0);
+            color: white;
+        }
+
+        .stat-header-dark {
+            background: linear-gradient(135deg, #111827, #374151);
+            color: white;
+        }
+
+        .team-flag {
+            width: 76px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, .25);
+            transition: 0.3s ease;
+        }
+
+        .team-flag:hover {
+            transform: scale(1.08);
+        }
+
+        .team-card-pro .card-body {
+            padding: 24px;
+        }
+
+        .team-card-pro a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .team-card-pro a:hover {
+            text-decoration: underline;
+        }
+
+        .team-info-icon {
+            height: 22px;
+            width: auto;
+            object-fit: contain;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .team-info-line {
+            margin-bottom: 14px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .team-info-label {
+            font-weight: 700;
+        }
+
+        .confederation-badge {
+            background: linear-gradient(135deg, #002b5c, #0066ff);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        @media (max-width: 991px) {
+            .navbar-center {
+                justify-content: flex-start;
+            }
+
+            .navbar-brand-area {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="world-bg"></div>
+
+{% include 'navbar.html' %}
+
+<main class="container my-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+
+        <h1 class="fw-bold mb-0 d-flex align-items-center">
+            <img src="{{ url_for('static', filename='images/world.png') }}"
+                 alt="Équipes qualifiées"
+                 class="title-icon">
+
+            Les 48 équipes qualifiées
+        </h1>
+
+        <a href="/matches" class="btn btn-primary d-flex align-items-center">
+            <img src="{{ url_for('static', filename='images/ball.png') }}"
+                 alt="Matchs"
+                 class="knockout-icon">
+
+            Voir les matchs
+        </a>
+
+    </div>
+
+    <div class="row">
+
+        {% for team in teams %}
+        {% set info = team_infos.get(team, {}) %}
+
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card stat-card-pro team-card-pro h-100">
+
+                <div class="card-header text-center fw-bold
+                    {% if loop.index % 6 == 1 %}stat-header-blue
+                    {% elif loop.index % 6 == 2 %}stat-header-green
+                    {% elif loop.index % 6 == 3 %}stat-header-red
+                    {% elif loop.index % 6 == 4 %}stat-header-gold
+                    {% elif loop.index % 6 == 5 %}stat-header-purple
+                    {% else %}stat-header-dark
+                    {% endif %}
+                ">
+                    <a href="{{ url_for('equipe_detail', team_name=team) }}">
+                        <img src="https://flagcdn.com/64x48/{{ team|country_code }}.png"
+                             alt="{{ team }}"
+                             class="team-flag">
+                    </a>
+
+                    <h5 class="mt-2 mb-0">
+                        <a href="{{ url_for('equipe_detail', team_name=team) }}">
+                            {{ team }}
+                        </a>
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <p class="team-info-line">
+                        <strong class="team-info-label">
+                            <img src="{{ url_for('static', filename='images/world.png') }}"
+                                 alt="Capitale"
+                                 class="team-info-icon">
+                            Capitale :
+                        </strong>
+                        {{ info.get("capitale", "À compléter") }}
+                    </p>
+
+                    <p class="team-info-line">
+                        <strong class="team-info-label">
+                            <img src="{{ url_for('static', filename='images/player.png') }}"
+                                 alt="Langue"
+                                 class="team-info-icon">
+                            Langue :
+                        </strong>
+                        {{ info.get("langue", "À compléter") }}
+                    </p>
+
+                    <p class="team-info-line mb-0">
+                        <strong class="team-info-label">
+                            <img src="{{ url_for('static', filename='images/ball.png') }}"
+                                 alt="Confédération"
+                                 class="team-info-icon">
+                            Confédération :
+                        </strong>
+
+                        <span class="confederation-badge">
+                            {{ info.get("zone", "À compléter") }}
+                        </span>
+                    </p>
+
+                </div>
+
+            </div>
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</main>
+
+{% include 'footer.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration phase finale - World Cup 2026</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container">
+
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+            <img src="{{ url_for('static', filename='images/ball.png') }}"
+                 alt="World Cup 2026"
+                 class="navbar-logo">
+            <span class="ms-2">World Cup 2026</span>
+        </a>
+
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/">Accueil</a>
+            <a class="nav-link" href="/groups">Groupes</a>
+            <a class="nav-link" href="/matches">Matchs</a>
+            <a class="nav-link" href="/standings">Classement</a>
+            <a class="nav-link" href="/stadiums">Stades</a>
+            <a class="nav-link active" href="/admin/knockout">Phase finale</a>
+            <a class="nav-link" href="/admin/settings">⚙️ Paramètres</a>
+            <a class="nav-link text-danger" href="/logout">🚪 Déconnexion</a>
+        </div>
+
+    </div>
+</nav>
+
+<main class="container my-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold">
+            🏆 Administration de la phase finale
+        </h1>
+
+        <a href="/admin/reset-knockout" class="btn btn-outline-danger"
+           onclick="return confirm('Voulez-vous vraiment réinitialiser toute la phase finale ?');">
+            🔄 Réinitialiser
+        </a>
+    </div>
+
+    <div class="alert alert-info">
+        <strong>Information :</strong>
+        En cas de match nul en phase finale, choisis manuellement le vainqueur dans la colonne
+        <strong>Vainqueur / TAB</strong>.
+    </div>
+
+    <form method="POST">
+
+        {% for round_name in ["16es de finale", "8es de finale", "Quarts de finale", "Demi-finales", "Match pour la 3e place", "Finale"] %}
+
+        <h2 class="mt-5 mb-3">
+            {{ round_name }}
+        </h2>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle shadow-sm">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Match</th>
+                        <th>Équipe 1</th>
+                        <th class="text-center">Score</th>
+                        <th>Équipe 2</th>
+                        <th>Vainqueur / TAB</th>
+                        <th>Résultat actuel</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% set has_match = false %}
+
+                    {% for match in knockout_matches %}
+                    {% if match.round_name == round_name %}
+
+                    <tr>
+                        <td>
+                            <strong>Match {{ match.match_order }}</strong>
+                        </td>
+
+                        <td>
+                            <span class="fs-4">{{ match.team1|flag }}</span>
+                            <strong>{{ match.team1 }}</strong>
+                        </td>
+
+                        <td class="text-center">
+                            <input class="form-control d-inline-block text-center"
+                                   style="width:80px;"
+                                   type="number"
+                                   name="score1_{{ match.id }}"
+                                   min="0"
+                                   value="{{ match.score1 if match.score1 is not none else '' }}">
+
+                            <span class="mx-2 fw-bold">-</span>
+
+                            <input class="form-control d-inline-block text-center"
+                                   style="width:80px;"
+                                   type="number"
+                                   name="score2_{{ match.id }}"
+                                   min="0"
+                                   value="{{ match.score2 if match.score2 is not none else '' }}">
+                        </td>
+
+                        <td>
+                            <span class="fs-4">{{ match.team2|flag }}</span>
+                            <strong>{{ match.team2 }}</strong>
+                        </td>
+
+                        <td>
+                            <select class="form-select" name="winner_{{ match.id }}">
+                                <option value="">Automatique</option>
+
+                                <option value="{{ match.team1 }}"
+                                    {% if match.winner == match.team1 %}selected{% endif %}>
+                                    {{ match.team1 }}
+                                </option>
+
+                                <option value="{{ match.team2 }}"
+                                    {% if match.winner == match.team2 %}selected{% endif %}>
+                                    {{ match.team2 }}
+                                </option>
+                            </select>
+
+                            <small class="text-muted">
+                                À utiliser surtout si le score est nul après prolongation.
+                            </small>
+                        </td>
+
+                        <td>
+                            {% if match.winner %}
+                                <strong class="text-success">
+                                    {{ match.winner|flag }} {{ match.winner }}
+                                </strong>
+                            {% else %}
+                                <span class="text-muted">À déterminer</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% endif %}
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+
+        {% endfor %}
+
+        <button type="submit" class="btn btn-success mb-5">
+            💾 Sauvegarder les scores
+        </button>
+
+    </form>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

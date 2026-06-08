@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meilleurs Passeurs - World Cup 2026</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .stat-card-pro {
+            border: none;
+            border-radius: 22px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ffffff, #f4f7ff);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            transition: 0.3s ease;
+        }
+
+        .stat-card-pro:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+        }
+
+        .stat-header-blue {
+            background: linear-gradient(135deg, #002b5c, #0066ff);
+            color: white;
+        }
+
+        .stat-header-icon {
+            height: 32px;
+            width: auto;
+            object-fit: contain;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .table thead {
+            background: linear-gradient(135deg, #002b5c, #0066ff);
+            color: white;
+        }
+
+        .table tbody tr:hover {
+            background: #f2f7ff;
+        }
+
+        .rank-number {
+            display: inline-flex;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            justify-content: center;
+            align-items: center;
+            background: #111827;
+            color: white;
+            font-weight: 800;
+        }
+
+        .top-assist-row:first-child {
+            background: linear-gradient(90deg, rgba(0, 102, 255, 0.20), #ffffff);
+        }
+
+        .assist-badge {
+            background: linear-gradient(135deg, #002b5c, #0066ff);
+            color: white;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-weight: 700;
+        }
+
+        .empty-state {
+            padding: 35px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="world-bg"></div>
+
+{% include 'navbar.html' %}
+
+<main class="container mt-5 mb-5">
+
+    <div class="text-center mb-5">
+
+        <h1 class="mb-4 text-center d-flex justify-content-center align-items-center">
+
+            <img src="{{ url_for('static', filename='images/player.png') }}"
+                 alt="Meilleurs passeurs"
+                 class="me-3"
+                 style="width:80px; height:auto; background:none; border:none; box-shadow:none;">
+
+            Classement des Meilleurs Passeurs
+
+        </h1>
+
+        <p class="text-muted">
+            Coupe du Monde FIFA 2026
+        </p>
+
+    </div>
+
+    <div class="card stat-card-pro">
+
+        <div class="card-header stat-header-blue text-center fw-bold">
+            <img src="{{ url_for('static', filename='images/pas.png') }}"
+                 alt="Passes décisives"
+                 class="stat-header-icon">
+            Top Passeurs
+        </div>
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-striped table-hover table-bordered align-middle mb-0">
+
+                    <thead>
+                        <tr>
+                            <th class="text-center" width="80">#</th>
+                            <th>Joueur</th>
+                            <th>Équipe</th>
+                            <th class="text-center">Passes décisives</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for joueur in joueurs %}
+
+                        <tr class="top-assist-row">
+
+                            <td class="text-center">
+                                <span class="rank-number">
+                                    {{ loop.index }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <strong>{{ joueur.player_name }}</strong>
+                            </td>
+
+                            <td>
+                                <img src="https://flagcdn.com/32x24/{{ joueur.team|country_code }}.png"
+                                     alt="{{ joueur.team }}"
+                                     class="me-2">
+
+                                {{ joueur.team }}
+                            </td>
+
+                            <td class="text-center">
+                                <span class="assist-badge">
+                                    {{ joueur.assists }}
+                                </span>
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                        {% if not joueurs %}
+
+                        <tr>
+                            <td colspan="4" class="text-center empty-state">
+                                Aucun passeur enregistré.
+                            </td>
+                        </tr>
+
+                        {% endif %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+{% include 'footer.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

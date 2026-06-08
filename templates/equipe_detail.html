@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ team_name }} - World Cup 2026</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        body {
+            background: #f5f7fb;
+        }
+
+        .team-detail {
+            max-width: 1200px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        .stat-card-pro {
+            border: none;
+            border-radius: 22px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ffffff, #f4f7ff);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            transition: 0.3s ease;
+        }
+
+        .stat-card-pro:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+        }
+
+        .stat-header-blue {
+            background: linear-gradient(135deg, #002b5c, #0066ff);
+            color: white;
+        }
+
+        .stat-header-green {
+            background: linear-gradient(135deg, #006b3f, #00c853);
+            color: white;
+        }
+
+        .stat-header-red {
+            background: linear-gradient(135deg, #8b0000, #ff1744);
+            color: white;
+        }
+
+        .stat-header-gold {
+            background: linear-gradient(135deg, #8a6d00, #ffcc00);
+            color: #111;
+        }
+
+        .stat-header-purple {
+            background: linear-gradient(135deg, #4a148c, #9c27b0);
+            color: white;
+        }
+
+        .stat-header-dark {
+            background: linear-gradient(135deg, #111827, #374151);
+            color: white;
+        }
+
+        .stat-header-icon {
+            height: 30px;
+            width: auto;
+            object-fit: contain;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .stat-icon-img {
+            height: 46px;
+            width: auto;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .team-header {
+            background: linear-gradient(135deg, #06142e, #103b80);
+            color: white;
+            text-align: center;
+            padding: 35px;
+            border-radius: 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, .22);
+        }
+
+        .team-flag-large {
+            width: 145px;
+            border-radius: 14px;
+            margin-bottom: 15px;
+            box-shadow: 0 12px 26px rgba(0, 0, 0, .25);
+        }
+
+        .team-info-pill {
+            display: inline-block;
+            background: rgba(255,255,255,.13);
+            border: 1px solid rgba(255,255,255,.25);
+            border-radius: 30px;
+            padding: 8px 16px;
+            margin: 6px;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 800;
+            color: #002b5c;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .match-info-icon {
+            height: 18px;
+            width: auto;
+            object-fit: contain;
+            margin-right: 6px;
+        }
+
+        .back-btn-pro {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #002b5c, #0066ff);
+            color: white;
+            text-decoration: none;
+            border-radius: 14px;
+            font-weight: 700;
+            box-shadow: 0 8px 18px rgba(0, 102, 255, .25);
+        }
+
+        .back-btn-pro:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .match-vs-box {
+            font-size: 22px;
+            font-weight: 800;
+            color: #002b5c;
+        }
+
+        .team-name-small {
+            font-weight: 700;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="world-bg"></div>
+
+{% include 'navbar.html' %}
+
+<div class="team-detail">
+
+    <a href="/equipes" class="back-btn-pro">
+        ← Retour aux équipes
+    </a>
+
+    <div class="team-header">
+
+        <img src="https://flagcdn.com/w160/{{ team_name|country_code }}.png"
+             alt="{{ team_name }}"
+             class="team-flag-large">
+
+        <h1 class="fw-bold">{{ team_name }}</h1>
+
+        <div class="mt-3">
+            <span class="team-info-pill">
+                <strong>Capitale :</strong> {{ infos.capitale }}
+            </span>
+
+            <span class="team-info-pill">
+                <strong>Langue :</strong> {{ infos.langue }}
+            </span>
+
+            <span class="team-info-pill">
+                <strong>Zone :</strong> {{ infos.zone }}
+            </span>
+        </div>
+
+    </div>
+
+    <h2 class="fw-bold mb-4 d-flex align-items-center">
+        <img src="{{ url_for('static', filename='images/clas.png') }}"
+             alt="Statistiques"
+             class="stat-header-icon">
+        Statistiques
+    </h2>
+
+    <div class="row text-center mb-5">
+
+        <div class="col-lg-3 col-md-4 col-6 mb-4">
+            <div class="card stat-card-pro h-100">
+                <div class="card-body">
+                    <img src="{{ url_for('static', filename='images/ball.png') }}"
+                         alt="Matchs joués"
+                         class="stat-icon-img">
+                    <div class="stat-number">{{ stats.played }}</div>
+                    <div class="stat-label">MJ</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-6 mb-4">
+            <div class="card stat-card-pro h-100">
+                <div class="card-body">
+                    <img src="{{ url_for('static', filename='images/win.png') }}"
+                         alt="Victoires"
+                         class="stat-icon-img">
+                    <div class="stat-number">{{ stats.wins }}</div>
+                    <div class="stat-label">Victoires</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-6 mb-4">
+            <div class="card stat-card-pro h-100">
+                <div class="card-body">
+                    <img src="{{ url_for('static', filename='images/nuls.png') }}"
+                         alt="Nuls"
+                         class="stat-icon-img">
+                    <div class="stat-number">{{ stats.draws }}</div>
+                    <div class="stat-label">Nuls</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-6 mb-4">
+            <div class="card stat-card-pro h-100">
+                <div class="card-body">
+                    <img src="{{ url_for('static', filename='images/calender.png') }}"
+                         alt="Défaites"
+                         class="stat-icon-img">
+                    <div class="stat-number">{{ stats.losses }}</div>
+                    <div class="stat-label">Défaites</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-6 mb-4">
+            <div class="card stat-card-pro h-100">
+                <div class="card-body">
+                    <img src="{{ url_for('static', filename='images/but.png') }}"
+                         alt="Buts pour"
+                         class="stat-icon-img">
+                    <div class="stat-number">{{ stats.goals_for }}</div>
+                    <div class="stat-label">BP</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-6 mb-4">
+            <div class="card stat-card-pro h-100">
+                <div class="card-body">
+                    <img src="{{ url_for('static', filename='images/bc.png') }}"
+                         alt="Buts contre"
+                         class="stat-icon-img">
+                    <div class="stat-number">{{ stats.goals_against }}</div>
+                    <div class="stat-label">BC</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-6 mb-4">
+            <div class="card stat-card-pro h-100">
+                <div class="card-body">
+                    <img src="{{ url_for('static', filename='images/clas.png') }}"
+                         alt="Différence"
+                         class="stat-icon-img">
+                    <div class="stat-number">{{ stats.difference }}</div>
+                    <div class="stat-label">Différence</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-6 mb-4">
+            <div class="card stat-card-pro h-100">
+                <div class="card-body">
+                    <img src="{{ url_for('static', filename='images/cup.png') }}"
+                         alt="Points"
+                         class="stat-icon-img">
+                    <div class="stat-number">{{ stats.points }}</div>
+                    <div class="stat-label">Points</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <h2 class="fw-bold mb-4 d-flex align-items-center">
+        <img src="{{ url_for('static', filename='images/ball.png') }}"
+             alt="Matchs"
+             class="stat-header-icon">
+        Matchs de {{ team_name }}
+    </h2>
+
+    <div class="row">
+
+        {% for match in matchs %}
+
+        <div class="col-lg-6 mb-4">
+            <div class="card stat-card-pro h-100">
+
+                <div class="card-header stat-header-blue fw-bold text-center">
+                    <img src="{{ url_for('static', filename='images/ball.png') }}"
+                         alt="Match"
+                         class="stat-header-icon">
+                    Match {{ match.match_number }}
+                </div>
+
+                <div class="card-body text-center">
+
+                    <div class="row align-items-center">
+
+                        <div class="col-4">
+                            <img src="https://flagcdn.com/48x36/{{ match.team1|country_code }}.png"
+                                 alt="{{ match.team1 }}"
+                                 class="match-flag-big">
+
+                            <div class="team-name-small mt-2">
+                                {{ match.team1 }}
+                            </div>
+                        </div>
+
+                        <div class="col-4 match-vs-box">
+                            {% if match.score1 is not none and match.score2 is not none %}
+                                {{ match.score1 }} - {{ match.score2 }}
+                            {% else %}
+                                VS
+                            {% endif %}
+                        </div>
+
+                        <div class="col-4">
+                            <img src="https://flagcdn.com/48x36/{{ match.team2|country_code }}.png"
+                                 alt="{{ match.team2 }}"
+                                 class="match-flag-big">
+
+                            <div class="team-name-small mt-2">
+                                {{ match.team2 }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <hr>
+
+                    <div class="text-muted small">
+                        <img src="{{ url_for('static', filename='images/calender.png') }}"
+                             alt="Date"
+                             class="match-info-icon">
+                        {{ match.match_date|date_fr }}
+                        <br>
+
+                        <img src="{{ url_for('static', filename='images/ball.png') }}"
+                             alt="Heure"
+                             class="match-info-icon">
+                        {{ match.match_time }}
+                        <br>
+
+                        <img src="{{ url_for('static', filename='images/stadium.png') }}"
+                             alt="Stade"
+                             class="match-info-icon">
+                        {{ match.stadium }}
+                        <br>
+
+                        <img src="{{ url_for('static', filename='images/world.png') }}"
+                             alt="Ville"
+                             class="match-info-icon">
+                        {{ match.city }}
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% include 'footer.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

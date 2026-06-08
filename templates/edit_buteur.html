@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier buteur - World Cup 2026</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="world-bg"></div>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container-fluid px-4">
+
+        <a class="navbar-brand fw-bold d-flex align-items-center navbar-brand-area" href="/">
+            <img src="{{ url_for('static', filename='images/ball.png') }}"
+                 alt="World Cup 2026"
+                 class="navbar-logo">
+            <span class="ms-2">World Cup 2026</span>
+        </a>
+
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav"
+                aria-controls="navbarNav"
+                aria-expanded="false"
+                aria-label="Ouvrir le menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+
+            <ul class="navbar-nav navbar-center align-items-lg-center">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Accueil</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/matches">Matchs</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/groups">Groupes</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/standings">Classements</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/knockout">Phase finale</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/statistiques">Statistiques</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/equipes">Équipes</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center active" href="/buteurs">
+                        <img src="{{ url_for('static', filename='images/player.png') }}"
+                             alt="Buteurs"
+                             class="buteur-icon me-1">
+                        Buteurs
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/stadiums">Stades</a>
+                </li>
+
+                {% if session.get("admin") %}
+
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold" href="/admin/matchs">
+                            Admin Matchs
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold d-flex align-items-center" href="/admin/knockout">
+                            <img src="{{ url_for('static', filename='images/cup.png') }}"
+                                 alt="Admin Phase finale"
+                                 class="admin-icon">
+                            Admin Phase finale
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold active d-flex align-items-center" href="/admin/buteurs">
+                            <img src="{{ url_for('static', filename='images/player.png') }}"
+                                 alt="Admin Buteurs"
+                                 class="buteur-icon me-1">
+                            Admin Buteurs
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold" href="/admin/settings">
+                            Paramètres
+                        </a>
+                    </li>
+
+                {% endif %}
+
+            </ul>
+
+            <ul class="navbar-nav ms-lg-auto align-items-lg-center">
+
+                {% if session.get("admin") %}
+
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center" href="/logout" title="Déconnexion">
+                            <img src="{{ url_for('static', filename='images/out.png') }}"
+                                 alt="Déconnexion"
+                                 class="auth-icon">
+                        </a>
+                    </li>
+
+                {% endif %}
+
+            </ul>
+
+        </div>
+
+    </div>
+</nav>
+
+<div class="container my-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow-lg border-0">
+
+                <div class="card-header bg-dark text-white text-center">
+
+                    <h2 class="mb-0 d-flex align-items-center justify-content-center">
+                        <img src="{{ url_for('static', filename='images/player.png') }}"
+                             alt="Buteur"
+                             style="width:55px; height:auto; margin-right:12px; background:none; border:none; box-shadow:none;">
+
+                        Modifier un buteur
+                    </h2>
+
+                </div>
+
+                <div class="card-body p-4">
+
+                    <form method="POST">
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label fw-bold">
+                                    Joueur
+                                </label>
+
+                                <input type="text"
+                                       name="player_name"
+                                       class="form-control"
+                                       value="{{ joueur.player_name }}"
+                                       required>
+
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label fw-bold">
+                                    Équipe
+                                </label>
+
+                                <input type="text"
+                                       name="team"
+                                       class="form-control"
+                                       value="{{ joueur.team }}"
+                                       required>
+
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label fw-bold">
+                                    Buts
+                                </label>
+
+                                <input type="number"
+                                       name="goals"
+                                       class="form-control"
+                                       min="0"
+                                       value="{{ joueur.goals }}"
+                                       required>
+
+                            </div>
+
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex gap-2 flex-wrap">
+
+                            <button type="submit" class="btn btn-success">
+                                Sauvegarder
+                            </button>
+
+                            <a href="/admin/buteurs" class="btn btn-secondary">
+                                Retour
+                            </a>
+
+                            <a href="/buteurs" class="btn btn-primary">
+                                Voir classement public
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

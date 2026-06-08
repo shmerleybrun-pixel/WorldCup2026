@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Cup 2026</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        body {
+            padding-top: 70px !important;
+        }
+
+        .hero-box {
+            margin-top: 0 !important;
+            padding-top: 10px !important;
+            padding-bottom: 35px !important;
+            min-height: 520px;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-cup-large {
+            width: 100%;
+            max-width: 230px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .hero-ball-large {
+            width: 100%;
+            max-width: 220px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .hero-title {
+            font-size: clamp(42px, 6vw, 84px);
+            font-weight: 900;
+        }
+
+        .hero-subtitle {
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .hero-description {
+            font-size: 18px;
+        }
+
+        @media (max-width: 991px) {
+            body {
+                padding-top: 70px !important;
+            }
+
+            .hero-box {
+                min-height: auto;
+                padding-top: 20px !important;
+            }
+
+            .hero-cup-large,
+            .hero-ball-large {
+                max-width: 160px;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="world-bg"></div>
+
+{% include 'navbar.html' %}
+
+<main class="container my-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+
+        <h1 class="fw-bold mb-0 d-flex align-items-center">
+            <img src="{{ url_for('static', filename='images/ball.png') }}"
+                 alt="Scores"
+                 class="title-icon">
+
+            Administration des scores
+        </h1>
+
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="/matches" class="btn btn-primary">
+                Voir les matchs
+            </a>
+
+            <a href="/admin/knockout" class="btn btn-danger d-flex align-items-center">
+                <img src="{{ url_for('static', filename='images/cup.png') }}"
+                     alt="Coupe du Monde"
+                     class="knockout-icon">
+
+                Phase finale
+            </a>
+        </div>
+
+    </div>
+
+    <form method="POST">
+
+        <div class="card match-card shadow-sm">
+
+            <div class="card-header bg-dark text-white fw-bold text-center">
+                Modifier les scores des matchs
+            </div>
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered align-middle text-center mb-0 admin-score-table">
+
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Match</th>
+                                <th>Groupe</th>
+                                <th>Équipe 1</th>
+                                <th>Score</th>
+                                <th>Équipe 2</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for match in matchs %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>Match {{ match.match_number }}</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        {{ match.match_date|date_fr }} • {{ match.match_time }}
+                                    </small>
+                                </td>
+
+                                <td>
+                                    Groupe {{ match.group_name }}
+                                </td>
+
+                                <td class="text-start">
+                                    <div class="admin-team-cell">
+                                        <img src="https://flagcdn.com/32x24/{{ match.team1|country_code }}.png"
+                                             class="small-flag"
+                                             alt="{{ match.team1 }}">
+
+                                        <strong>{{ match.team1 }}</strong>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="admin-score-box">
+
+                                        <input
+                                            class="form-control admin-score-input"
+                                            type="number"
+                                            name="score1_{{ match.id }}"
+                                            min="0"
+                                            value="{{ match.score1 if match.score1 is not none else '' }}"
+                                        >
+
+                                        <span class="admin-score-separator">-</span>
+
+                                        <input
+                                            class="form-control admin-score-input"
+                                            type="number"
+                                            name="score2_{{ match.id }}"
+                                            min="0"
+                                            value="{{ match.score2 if match.score2 is not none else '' }}"
+                                        >
+
+                                    </div>
+                                </td>
+
+                                <td class="text-start">
+                                    <div class="admin-team-cell">
+                                        <img src="https://flagcdn.com/32x24/{{ match.team2|country_code }}.png"
+                                             class="small-flag"
+                                             alt="{{ match.team2 }}">
+
+                                        <strong>{{ match.team2 }}</strong>
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="mt-4 d-flex gap-2 flex-wrap">
+            <button type="submit" class="btn btn-success btn-lg">
+                💾 Sauvegarder les scores
+            </button>
+
+            <a href="/admin/knockout" class="btn btn-warning btn-lg">
+                🏆 Gérer la phase finale
+            </a>
+        </div>
+
+    </form>
+
+</main>
+
+{% include 'footer.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

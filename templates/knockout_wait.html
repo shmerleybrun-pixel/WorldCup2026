@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Phase finale en attente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="container mt-4">
+
+<nav class="mb-4">
+    <a href="/">Accueil</a> |
+    <a href="/groups">Groupes</a> |
+    <a href="/matches">Matchs</a> |
+    <a href="/standings">Classement</a> |
+    <a href="/stadiums">Stades</a>
+</nav>
+
+<h1>🏆 Phase finale</h1>
+
+<div class="alert alert-warning mt-4">
+    <h4>Phase de groupes non terminée</h4>
+
+    <p>
+        Il reste encore
+        <strong>{{ matchs_restants }}</strong>
+        match(s) à jouer.
+    </p>
+
+    <p>
+        La phase finale sera générée automatiquement lorsque tous les matchs de groupes auront été joués.
+    </p>
+</div>
+
+<a href="/matches" class="btn btn-primary">
+    Retour aux matchs
+</a>
+
+<a href="/standings" class="btn btn-secondary">
+    Voir les classements
+</a>
+
+</body>
+</html>

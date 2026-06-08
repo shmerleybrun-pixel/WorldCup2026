@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histoire de la Coupe du Monde - World Cup 2026</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            margin: 0;
+        }
+
+        .cup-page {
+            max-width: 1250px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        .stat-card-pro {
+            border: none;
+            border-radius: 22px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ffffff, #f4f7ff);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            transition: 0.3s ease;
+        }
+
+        .stat-card-pro:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+        }
+
+        .stat-header-blue {
+            background: linear-gradient(135deg, #002b5c, #0066ff);
+            color: white;
+        }
+
+        .stat-header-green {
+            background: linear-gradient(135deg, #006b3f, #00c853);
+            color: white;
+        }
+
+        .stat-header-red {
+            background: linear-gradient(135deg, #8b0000, #ff1744);
+            color: white;
+        }
+
+        .stat-header-gold {
+            background: linear-gradient(135deg, #8a6d00, #ffcc00);
+            color: #111;
+        }
+
+        .stat-header-purple {
+            background: linear-gradient(135deg, #4a148c, #9c27b0);
+            color: white;
+        }
+
+        .stat-header-dark {
+            background: linear-gradient(135deg, #111827, #374151);
+            color: white;
+        }
+
+        .stat-header-icon {
+            height: 32px;
+            width: auto;
+            object-fit: contain;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .stat-icon-img {
+            height: 60px;
+            width: auto;
+            object-fit: contain;
+            margin-bottom: 12px;
+        }
+
+        .cup-hero {
+            background: linear-gradient(135deg, #06142e, #103b80);
+            color: white;
+            padding: 45px;
+            border-radius: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, .22);
+        }
+
+        .cup-hero h1 {
+            font-size: 42px;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .cup-section {
+            border: none;
+            border-radius: 22px;
+            background: linear-gradient(135deg, #ffffff, #f4f7ff);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .cup-section-header {
+            padding: 16px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .cup-section-body {
+            padding: 25px;
+        }
+
+        .cup-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 15px;
+        }
+
+        .cup-card {
+            background: #ffffff;
+            padding: 18px;
+            border-radius: 18px;
+            border-left: 5px solid #0066ff;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+            transition: 0.3s ease;
+        }
+
+        .cup-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.14);
+        }
+
+        .flag-img {
+            width: 34px;
+            height: 24px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+
+        .cup-title-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .fact-list li {
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #002b5c, #0066ff);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 8px 18px rgba(0, 102, 255, .25);
+        }
+
+        .back-btn:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .back-icon {
+            height: 22px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .stat-box {
+            border: none;
+            border-radius: 22px;
+            background: linear-gradient(135deg, #ffffff, #f4f7ff);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+            padding: 22px;
+            text-align: center;
+            height: 100%;
+            transition: 0.3s ease;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-box h3 {
+            font-size: 36px;
+            font-weight: 800;
+            color: #002b5c;
+            margin-bottom: 5px;
+        }
+
+        .stat-box p {
+            color: #6c757d;
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+
+        .small-note {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .fact-icon {
+            height: 24px;
+            width: auto;
+            object-fit: contain;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="cup-page">
+
+    <a href="/" class="back-btn">
+        <img src="{{ url_for('static', filename='images/world.png') }}"
+             alt="Accueil"
+             class="back-icon">
+        Retour à l’accueil
+    </a>
+
+    <div class="cup-hero">
+        <img src="{{ url_for('static', filename='images/cup.png') }}"
+             alt="Coupe du Monde"
+             class="stat-icon-img">
+
+        <h1>Histoire de la Coupe du Monde</h1>
+        <p>
+            Les organisateurs, les champions, les finales et les moments marquants
+            du plus grand tournoi de football.
+        </p>
+    </div>
+
+    <div class="cup-section">
+        <div class="cup-section-header stat-header-blue">
+            <img src="{{ url_for('static', filename='images/world.png') }}"
+                 alt="Présentation"
+                 class="stat-header-icon">
+            Présentation
+        </div>
+
+        <div class="cup-section-body">
+            <p>
+                La Coupe du Monde de la FIFA est la plus grande compétition internationale
+                de football masculin. Elle réunit les meilleures sélections nationales et se joue
+                tous les quatre ans depuis 1930.
+            </p>
+
+            <p class="mb-0">
+                L’édition 2026 est la 23e édition du tournoi. Elle est organisée par trois pays :
+                le Canada, le Mexique et les États-Unis. Ce sera aussi la première Coupe du Monde
+                masculine avec 48 équipes participantes.
+            </p>
+        </div>
+    </div>
+
+    <div class="cup-section">
+        <div class="cup-section-header stat-header-gold">
+            <img src="{{ url_for('static', filename='images/cup.png') }}"
+                 alt="Coupe du Monde 2026"
+                 class="stat-header-icon">
+            Coupe du Monde 2026
+        </div>
+
+        <div class="cup-section-body">
+
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="stat-box">
+                        <img src="{{ url_for('static', filename='images/world.png') }}"
+                             alt="Équipes"
+                             class="stat-icon-img">
+                        <h3>48</h3>
+                        <p>Équipes</p>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="stat-box">
+                        <img src="{{ url_for('static', filename='images/ball.png') }}"
+                             alt="Matchs"
+                             class="stat-icon-img">
+                        <h3>104</h3>
+                        <p>Matchs</p>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="stat-box">
+                        <img src="{{ url_for('static', filename='images/stadium.png') }}"
+                             alt="Villes hôtes"
+                             class="stat-icon-img">
+                        <h3>16</h3>
+                        <p>Villes hôtes</p>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="stat-box">
+                        <img src="{{ url_for('static', filename='images/cup.png') }}"
+                             alt="Pays organisateurs"
+                             class="stat-icon-img">
+                        <h3>3</h3>
+                        <p>Pays organisateurs</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cup-grid mt-4">
+                <div class="cup-card">
+                    <div class="cup-title-line">
+                        <img src="https://flagcdn.com/48x36/ca.png" class="flag-img" alt="Canada">
+                        <strong>Canada</strong>
+                    </div>
+                    <p class="mb-0 mt-2">Pays coorganisateur de la Coupe du Monde 2026.</p>
+                </div>
+
+                <div class="cup-card">
+                    <div class="cup-title-line">
+                        <img src="https://flagcdn.com/48x36/mx.png" class="flag-img" alt="Mexique">
+                        <strong>Mexique</strong>
+                    </div>
+                    <p class="mb-0 mt-2">Premier pays à accueillir des matchs dans trois Coupes du Monde masculines.</p>
+                </div>
+
+                <div class="cup-card">
+                    <div class="cup-title-line">
+                        <img src="https://flagcdn.com/48x36/us.png" class="flag-img" alt="États-Unis">
+                        <strong>États-Unis</strong>
+                    </div>
+                    <p class="mb-0 mt-2">Pays qui accueillera notamment plusieurs matchs majeurs de la phase finale.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="cup-section">
+        <div class="cup-section-header stat-header-green">
+            <img src="{{ url_for('static', filename='images/stadium.png') }}"
+                 alt="Pays organisateurs"
+                 class="stat-header-icon">
+            Pays organisateurs
+        </div>
+
+        <div class="cup-section-body">
+            <div class="cup-grid">
+
+                <div class="cup-card"><strong>1930</strong><br><img src="https://flagcdn.com/48x36/uy.png" class="flag-img" alt="Uruguay">Uruguay</div>
+                <div class="cup-card"><strong>1934</strong><br><img src="https://flagcdn.com/48x36/it.png" class="flag-img" alt="Italie">Italie</div>
+                <div class="cup-card"><strong>1938</strong><br><img src="https://flagcdn.com/48x36/fr.png" class="flag-img" alt="France">France</div>
+                <div class="cup-card"><strong>1950</strong><br><img src="https://flagcdn.com/48x36/br.png" class="flag-img" alt="Brésil">Brésil</div>
+                <div class="cup-card"><strong>1954</strong><br><img src="https://flagcdn.com/48x36/ch.png" class="flag-img" alt="Suisse">Suisse</div>
+                <div class="cup-card"><strong>1958</strong><br><img src="https://flagcdn.com/48x36/se.png" class="flag-img" alt="Suède">Suède</div>
+                <div class="cup-card"><strong>1962</strong><br><img src="https://flagcdn.com/48x36/cl.png" class="flag-img" alt="Chili">Chili</div>
+                <div class="cup-card"><strong>1966</strong><br><img src="https://flagcdn.com/48x36/gb-eng.png" class="flag-img" alt="Angleterre">Angleterre</div>
+                <div class="cup-card"><strong>1970</strong><br><img src="https://flagcdn.com/48x36/mx.png" class="flag-img" alt="Mexique">Mexique</div>
+                <div class="cup-card"><strong>1974</strong><br><img src="https://flagcdn.com/48x36/de.png" class="flag-img" alt="Allemagne de l’Ouest">Allemagne de l’Ouest</div>
+                <div class="cup-card"><strong>1978</strong><br><img src="https://flagcdn.com/48x36/ar.png" class="flag-img" alt="Argentine">Argentine</div>
+                <div class="cup-card"><strong>1982</strong><br><img src="https://flagcdn.com/48x36/es.png" class="flag-img" alt="Espagne">Espagne</div>
+                <div class="cup-card"><strong>1986</strong><br><img src="https://flagcdn.com/48x36/mx.png" class="flag-img" alt="Mexique">Mexique</div>
+                <div class="cup-card"><strong>1990</strong><br><img src="https://flagcdn.com/48x36/it.png" class="flag-img" alt="Italie">Italie</div>
+                <div class="cup-card"><strong>1994</strong><br><img src="https://flagcdn.com/48x36/us.png" class="flag-img" alt="États-Unis">États-Unis</div>
+                <div class="cup-card"><strong>1998</strong><br><img src="https://flagcdn.com/48x36/fr.png" class="flag-img" alt="France">France</div>
+                <div class="cup-card"><strong>2002</strong><br><img src="https://flagcdn.com/48x36/kr.png" class="flag-img" alt="Corée du Sud">Corée du Sud + <img src="https://flagcdn.com/48x36/jp.png" class="flag-img" alt="Japon">Japon</div>
+                <div class="cup-card"><strong>2006</strong><br><img src="https://flagcdn.com/48x36/de.png" class="flag-img" alt="Allemagne">Allemagne</div>
+                <div class="cup-card"><strong>2010</strong><br><img src="https://flagcdn.com/48x36/za.png" class="flag-img" alt="Afrique du Sud">Afrique du Sud</div>
+                <div class="cup-card"><strong>2014</strong><br><img src="https://flagcdn.com/48x36/br.png" class="flag-img" alt="Brésil">Brésil</div>
+                <div class="cup-card"><strong>2018</strong><br><img src="https://flagcdn.com/48x36/ru.png" class="flag-img" alt="Russie">Russie</div>
+                <div class="cup-card"><strong>2022</strong><br><img src="https://flagcdn.com/48x36/qa.png" class="flag-img" alt="Qatar">Qatar</div>
+                <div class="cup-card"><strong>2026</strong><br><img src="https://flagcdn.com/48x36/ca.png" class="flag-img" alt="Canada">Canada + <img src="https://flagcdn.com/48x36/mx.png" class="flag-img" alt="Mexique">Mexique + <img src="https://flagcdn.com/48x36/us.png" class="flag-img" alt="États-Unis">États-Unis</div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="cup-section">
+        <div class="cup-section-header stat-header-red">
+            <img src="{{ url_for('static', filename='images/cup.png') }}"
+                 alt="Pays champions"
+                 class="stat-header-icon">
+            Pays champions
+        </div>
+
+        <div class="cup-section-body">
+            <div class="cup-grid">
+
+                <div class="cup-card"><strong>1930</strong><br><img src="https://flagcdn.com/48x36/uy.png" class="flag-img" alt="Uruguay">Uruguay</div>
+                <div class="cup-card"><strong>1934</strong><br><img src="https://flagcdn.com/48x36/it.png" class="flag-img" alt="Italie">Italie</div>
+                <div class="cup-card"><strong>1938</strong><br><img src="https://flagcdn.com/48x36/it.png" class="flag-img" alt="Italie">Italie</div>
+                <div class="cup-card"><strong>1950</strong><br><img src="https://flagcdn.com/48x36/uy.png" class="flag-img" alt="Uruguay">Uruguay</div>
+                <div class="cup-card"><strong>1954</strong><br><img src="https://flagcdn.com/48x36/de.png" class="flag-img" alt="Allemagne de l’Ouest">Allemagne de l’Ouest</div>
+                <div class="cup-card"><strong>1958</strong><br><img src="https://flagcdn.com/48x36/br.png" class="flag-img" alt="Brésil">Brésil</div>
+                <div class="cup-card"><strong>1962</strong><br><img src="https://flagcdn.com/48x36/br.png" class="flag-img" alt="Brésil">Brésil</div>
+                <div class="cup-card"><strong>1966</strong><br><img src="https://flagcdn.com/48x36/gb-eng.png" class="flag-img" alt="Angleterre">Angleterre</div>
+                <div class="cup-card"><strong>1970</strong><br><img src="https://flagcdn.com/48x36/br.png" class="flag-img" alt="Brésil">Brésil</div>
+                <div class="cup-card"><strong>1974</strong><br><img src="https://flagcdn.com/48x36/de.png" class="flag-img" alt="Allemagne de l’Ouest">Allemagne de l’Ouest</div>
+                <div class="cup-card"><strong>1978</strong><br><img src="https://flagcdn.com/48x36/ar.png" class="flag-img" alt="Argentine">Argentine</div>
+                <div class="cup-card"><strong>1982</strong><br><img src="https://flagcdn.com/48x36/it.png" class="flag-img" alt="Italie">Italie</div>
+                <div class="cup-card"><strong>1986</strong><br><img src="https://flagcdn.com/48x36/ar.png" class="flag-img" alt="Argentine">Argentine</div>
+                <div class="cup-card"><strong>1990</strong><br><img src="https://flagcdn.com/48x36/de.png" class="flag-img" alt="Allemagne de l’Ouest">Allemagne de l’Ouest</div>
+                <div class="cup-card"><strong>1994</strong><br><img src="https://flagcdn.com/48x36/br.png" class="flag-img" alt="Brésil">Brésil</div>
+                <div class="cup-card"><strong>1998</strong><br><img src="https://flagcdn.com/48x36/fr.png" class="flag-img" alt="France">France</div>
+                <div class="cup-card"><strong>2002</strong><br><img src="https://flagcdn.com/48x36/br.png" class="flag-img" alt="Brésil">Brésil</div>
+                <div class="cup-card"><strong>2006</strong><br><img src="https://flagcdn.com/48x36/it.png" class="flag-img" alt="Italie">Italie</div>
+                <div class="cup-card"><strong>2010</strong><br><img src="https://flagcdn.com/48x36/es.png" class="flag-img" alt="Espagne">Espagne</div>
+                <div class="cup-card"><strong>2014</strong><br><img src="https://flagcdn.com/48x36/de.png" class="flag-img" alt="Allemagne">Allemagne</div>
+                <div class="cup-card"><strong>2018</strong><br><img src="https://flagcdn.com/48x36/fr.png" class="flag-img" alt="France">France</div>
+                <div class="cup-card"><strong>2022</strong><br><img src="https://flagcdn.com/48x36/ar.png" class="flag-img" alt="Argentine">Argentine</div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="cup-section">
+        <div class="cup-section-header stat-header-purple">
+            <img src="{{ url_for('static', filename='images/ball.png') }}"
+                 alt="Faits remarquables"
+                 class="stat-header-icon">
+            Faits remarquables
+        </div>
+
+        <div class="cup-section-body">
+            <ul class="fact-list">
+                <li>
+                    <img src="{{ url_for('static', filename='images/cup.png') }}"
+                         alt="Record"
+                         class="fact-icon">
+                    <strong>Le Brésil</strong> est le pays le plus titré avec 5 Coupes du Monde.
+                </li>
+
+                <li>
+                    <img src="{{ url_for('static', filename='images/world.png') }}"
+                         alt="Histoire"
+                         class="fact-icon">
+                    <strong>La première édition</strong> a eu lieu en 1930 en Uruguay.
+                </li>
+
+                <li>
+                    <img src="{{ url_for('static', filename='images/stadium.png') }}"
+                         alt="Organisation"
+                         class="fact-icon">
+                    <strong>La Coupe du Monde 2002</strong> a été la première organisée par deux pays : la Corée du Sud et le Japon.
+                </li>
+
+                <li>
+                    <img src="{{ url_for('static', filename='images/stadium.png') }}"
+                         alt="Afrique"
+                         class="fact-icon">
+                    <strong>La Coupe du Monde 2010</strong> a été la première organisée sur le continent africain, en Afrique du Sud.
+                </li>
+
+                <li>
+                    <img src="{{ url_for('static', filename='images/world.png') }}"
+                         alt="2026"
+                         class="fact-icon">
+                    <strong>La Coupe du Monde 2026</strong> est la première organisée par trois pays : Canada, Mexique et États-Unis.
+                </li>
+
+                <li>
+                    <img src="{{ url_for('static', filename='images/cup.png') }}"
+                         alt="Mexique"
+                         class="fact-icon">
+                    <strong>Le Mexique</strong> devient le premier pays à accueillir des matchs dans trois éditions masculines : 1970, 1986 et 2026.
+                </li>
+
+                <li>
+                    <img src="{{ url_for('static', filename='images/calender.png') }}"
+                         alt="Calendrier"
+                         class="fact-icon">
+                    <strong>Les éditions 1942 et 1946</strong> n’ont pas eu lieu à cause de la Seconde Guerre mondiale.
+                </li>
+            </ul>
+
+            <p class="small-note mb-0">
+                Les drapeaux sont affichés via FlagCDN. Les données historiques principales couvrent les éditions jouées de 1930 à 2022, avec l’édition 2026 indiquée comme tournoi à venir.
+            </p>
+        </div>
+    </div>
+
+</div>
+
+{% include 'footer.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,287 @@
+<style>
+    body {
+        padding-top: 0 !important;
+    }
+
+    .navbar-fixed-pro {
+        position: sticky;
+        top: 0;
+        z-index: 1050;
+    }
+
+    .navbar {
+        min-height: 58px;
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+    }
+</style>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm navbar-fixed-pro">
+    <div class="container-fluid px-4">
+
+        <a class="navbar-brand fw-bold d-flex align-items-center navbar-brand-area" href="/">
+            <img src="{{ url_for('static', filename='images/ball.png') }}"
+                 alt="World Cup 2026"
+                 class="navbar-logo">
+            <span class="ms-2">World Cup 2026</span>
+        </a>
+
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+
+            <ul class="navbar-nav mx-auto align-items-lg-center">
+
+                {% if not session.get("role") %}
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'home' %}active{% endif %}" href="/">Accueil</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'matches' %}active{% endif %}" href="/matches">Matchs</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'groups' %}active{% endif %}" href="/groups">Groupes</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'standings' %}active{% endif %}" href="/standings">Classements</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'statistiques' %}active{% endif %}" href="/statistiques">Statistiques</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'knockout' %}active{% endif %}" href="/knockout">Phase finale</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'buteurs' %}active{% endif %}" href="/buteurs">Buteurs</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'passeurs' %}active{% endif %}" href="/passeurs">Passeurs</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'equipes' %}active{% endif %}" href="/equipes">Équipes</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'stadiums' %}active{% endif %}" href="/stadiums">Stades</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'predictions' %}active{% endif %}" href="/predictions">Prédictions</a>
+                    </li>
+
+                {% elif session.get("role") == "visitor" %}
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'home' %}active{% endif %}" href="/">Accueil</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'standings' %}active{% endif %}" href="/standings">Classements</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'statistiques' %}active{% endif %}" href="/statistiques">Statistiques</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'buteurs' %}active{% endif %}" href="/buteurs">Buteurs</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'passeurs' %}active{% endif %}" href="/passeurs">Passeurs</a>
+                    </li>
+
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'stadiums' %}active{% endif %}" href="/stadiums">Stades</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'classement_pronos' %}active{% endif %}" href="/classement-pronos">
+                            Classement Pronos
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'groupes_prives' %}active{% endif %}" href="/groupes-prives">
+                            Groupes privés
+                        </a>
+                    </li>
+
+                {% elif session.get("role") == "admin" %}
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'predictions' %}active{% endif %}" href="/predictions">
+                            Prédictions
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'classement_pronos' %}active{% endif %}" href="/classement-pronos">
+                            Classement Pronos
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold {% if active_page == 'admin_dashboard' %}active{% endif %}" href="/admin/dashboard">
+                            Dashboard
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold {% if active_page == 'admin_matchs' %}active{% endif %}" href="/admin/matchs">
+                            Admin Matchs
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold {% if active_page == 'admin_knockout' %}active{% endif %}" href="/admin/knockout">
+                            Admin Phase finale
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold {% if active_page == 'admin_buteurs' %}active{% endif %}" href="/admin/buteurs">
+                            Admin Buteurs
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold {% if active_page == 'admin_passeurs' %}active{% endif %}" href="/admin/passeurs">
+                            Admin Passeurs
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold {% if active_page == 'admin_news' %}active{% endif %}" href="/admin/news">
+                            Admin Actualités
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold {% if active_page == 'admin_live_video' %}active{% endif %}" href="/admin/live-video">
+                            Live vidéo
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold {% if active_page == 'admin_settings' %}active{% endif %}" href="/admin/settings">
+                            Paramètres
+                        </a>
+                    </li>
+
+                {% endif %}
+
+            </ul>
+
+            <div class="dropdown me-3">
+
+                 <button class="btn btn-light dropdown-toggle"
+                        data-bs-toggle="dropdown">
+
+                    🌎 
+
+                </button>
+
+                <ul class="dropdown-menu">
+
+                    <li>
+                        <a class="dropdown-item" href="/lang/fr">
+                            🇫🇷 Français
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" href="/lang/en">
+                            🇬🇧 English
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" href="/lang/es">
+                            🇪🇸 Español
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+
+            <div class="d-flex align-items-center gap-2 ms-lg-auto flex-wrap">
+
+                {% if session.get("role") == "admin" %}
+
+                    <span class="text-warning fw-bold">
+                        Admin
+                    </span>
+
+                    <a href="/admin/dashboard" class="btn btn-warning btn-sm">
+                        Dashboard
+                    </a>
+
+                    <a href="/admin/matchs" class="btn btn-outline-warning btn-sm">
+                        Matchs
+                    </a>
+
+                    <a href="/logout" class="btn btn-danger btn-sm">
+                        Déconnexion
+                    </a>
+
+                {% elif session.get("role") == "visitor" %}
+
+                    <span class="text-white fw-bold">
+                        {{ session.get("visitor_name") }}
+                    </span>
+
+                    <span class="badge bg-success fs-6">
+                        {{ user_points|default(0) }} pts
+                    </span>
+
+                    <a href="/dashboard" class="btn btn-primary btn-sm">
+                        Dashboard
+                    </a>
+
+                    <a href="/predictions" class="btn btn-success btn-sm">
+                        Mes prédictions
+                    </a>
+
+                    <a href="/mes-tickets" class="btn btn-warning btn-sm">
+                        Mes tickets
+                    </a>
+
+                    <a href="/logout" class="btn btn-danger btn-sm">
+                        Déconnexion
+                    </a>
+
+                {% else %}
+
+                    <a href="/register" class="btn btn-primary btn-sm">
+                        Inscription
+                    </a>
+
+                    <a href="/login" class="btn btn-success btn-sm">
+                        Connexion
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+</nav>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Classement privé - {{ group.name }}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="world-bg"></div>
+
+{% include 'navbar.html' %}
+
+<main class="container my-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+
+        <h1 class="fw-bold mb-0">
+            Classement privé : {{ group.name }}
+        </h1>
+
+        <a href="/groupe/{{ group.code }}" class="btn btn-primary">
+            Retour au groupe
+        </a>
+
+    </div>
+
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-dark text-white text-center fw-bold">
+            Classement du groupe
+        </div>
+
+        <div class="card-body table-responsive">
+
+            <table class="table table-striped table-bordered align-middle text-center">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Rang</th>
+                        <th>Joueur</th>
+                        <th>Points</th>
+                        <th>Scores exacts</th>
+                        <th>Bons résultats</th>
+                        <th>Pronos comptés</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for row in classement %}
+
+                    <tr>
+                        <td>
+                            <strong>{{ loop.index }}</strong>
+                        </td>
+
+                        <td>
+                            {{ row.visitor.full_name }}
+                        </td>
+
+                        <td>
+                            <span class="badge bg-success fs-6">
+                                {{ row.points }} pts
+                            </span>
+                        </td>
+
+                        <td>{{ row.exact_scores }}</td>
+
+                        <td>{{ row.bons_resultats }}</td>
+
+                        <td>{{ row.total_predictions }}</td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</main>
+
+{% include 'footer.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

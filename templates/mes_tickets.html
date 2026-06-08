@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mes tickets - World Cup 2026</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="world-bg"></div>
+
+{% include 'navbar.html' %}
+
+<main class="container my-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h1 class="fw-bold">
+            Mes tickets de prédictions
+        </h1>
+
+        <a href="/predictions" class="btn btn-primary">
+            Retour aux prédictions
+        </a>
+    </div>
+
+    {% if not receipts %}
+        <div class="alert alert-info text-center">
+            Tu n’as pas encore de ticket enregistré.
+        </div>
+    {% else %}
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white fw-bold text-center">
+                Historique de mes tickets
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0 text-center align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>N° Ticket</th>
+                            <th>Semaine</th>
+                            <th>Date</th>
+                            <th>Voir</th>
+                            <th>Télécharger</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for receipt in receipts %}
+                            <tr>
+                                <td>
+                                    <strong>{{ receipt.receipt_number }}</strong>
+                                </td>
+
+                                <td>
+                                    Semaine {{ receipt.week_number }}
+                                </td>
+
+                                <td>
+                                    {{ receipt.created_at }}
+                                </td>
+
+                                <td>
+                                    <a href="/receipt/{{ receipt.id }}" class="btn btn-outline-primary btn-sm">
+                                        Voir ticket
+                                    </a>
+                                </td>
+
+                                <td>
+                                    <a href="/download-receipt/{{ receipt.id }}" class="btn btn-success btn-sm">
+                                        Télécharger PDF
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    {% endif %}
+
+</main>
+
+{% include 'footer.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

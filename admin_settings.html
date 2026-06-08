@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matchs - World Cup 2026</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .navbar-brand-area {
+            min-width: 220px;
+        }
+
+        .navbar-center {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .admin-icon {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            margin-right: 5px;
+        }
+
+        @media (max-width: 991px) {
+            .navbar-center {
+                justify-content: flex-start;
+            }
+
+            .navbar-brand-area {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="world-bg"></div>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container-fluid px-4">
+
+        <a class="navbar-brand fw-bold d-flex align-items-center navbar-brand-area" href="/">
+            <img src="{{ url_for('static', filename='images/ball.png') }}"
+                 alt="World Cup 2026"
+                 class="navbar-logo">
+            <span class="ms-2">World Cup 2026</span>
+        </a>
+
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav"
+                aria-controls="navbarNav"
+                aria-expanded="false"
+                aria-label="Ouvrir le menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+
+            <ul class="navbar-nav navbar-center align-items-lg-center">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Accueil</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/matches">Matchs</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/groups">Groupes</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/standings">Classements</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/knockout">Phase finale</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/statistiques">Statistiques</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/equipes">Équipes</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center" href="/buteurs">
+                        Buteurs
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/stadiums">Stades</a>
+                </li>
+
+                {% if session.get("admin") %}
+
+                    <li class="nav-item">
+                        <a class="nav-link active text-warning fw-bold" href="/admin/matchs">
+                            <img src="{{ url_for('static', filename='images/ball.png') }}"
+                                 alt="Admin Matchs"
+                                 class="admin-icon">
+                            Admin Matchs
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold d-flex align-items-center" href="/admin/knockout">
+                            <img src="{{ url_for('static', filename='images/cup.png') }}"
+                                 alt="Admin Phase finale"
+                                 class="admin-icon">
+                            Admin Phase finale
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold d-flex align-items-center" href="/admin/buteurs">
+                            <img src="{{ url_for('static', filename='images/player.png') }}"
+                                 alt="Admin Buteurs"
+                                 class="admin-icon">
+                            Admin Buteurs
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold" href="/admin/settings">
+                            <img src="{{ url_for('static', filename='images/setup.png') }}"
+                                 alt="Paramètres"
+                                 class="admin-icon">
+                            Paramètres
+                        </a>
+                    </li>
+
+                {% endif %}
+
+            </ul>
+
+            <ul class="navbar-nav ms-lg-auto align-items-lg-center">
+
+                {% if session.get("admin") %}
+
+                    <li class="nav-item">
+                        <a class="nav-link text-danger fw-bold" href="/logout">
+                            <img src="{{ url_for('static', filename='images/out.png') }}"
+                                 alt="Déconnexion"
+                                 class="admin-icon">
+                        </a>
+                    </li>
+
+                {% endif %}
+
+            </ul>
+
+        </div>
+
+    </div>
+</nav>
+
+<main class="container my-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-6">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-header bg-dark text-white">
+                    <h3 class="mb-0">
+                        ⚙️ Paramètres administrateur
+                    </h3>
+                </div>
+
+                <div class="card-body">
+
+                    <form method="POST">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                Nom d'utilisateur
+                            </label>
+
+                            <input
+                                type="text"
+                                name="username"
+                                class="form-control"
+                                value="{{ admin.username }}"
+                                required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                Nouveau mot de passe
+                            </label>
+
+                            <input
+                                type="password"
+                                name="password"
+                                class="form-control"
+                                placeholder="Laisser vide pour conserver le mot de passe actuel">
+                        </div>
+
+                        <button type="submit" class="btn btn-success">
+                            💾 Enregistrer les paramètres
+                        </button>
+
+                        <a href="/admin/matchs" class="btn btn-secondary ms-2">
+                            Retour
+                        </a>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+<footer class="footer mt-5">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+
+            <div class="col-md-4 text-start">
+               © 2026 Shmerley Brun | World Cup 2026
+            </div>
+
+            <div class="col-md-8 sponsor-zone">
+
+               <a href="https://www.facebook.com/joseph.doirin" target="_blank">
+                   <img src="{{ url_for('static', filename='images/jmpd.jpg') }}"
+                        alt="JMPD"
+                        title="J.M PAUL DOIRIN - Partenaire officiel"
+                        class="sponsor-logo">
+               </a>
+
+               <a href="https://youtu.be/VCVje2sXku4?si=2Adb3ap2oN0-Cn6p" target="_blank">
+                   <img src="{{ url_for('static', filename='images/flay.png') }}"
+                   alt="Flay Music"
+                   title="Flay Music - Partenaire officiel"
+                   class="sponsor-logo">
+    </a>
+
+</div>
+
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

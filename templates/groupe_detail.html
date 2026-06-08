@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ group.name }} - Groupe privé</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="world-bg"></div>
+
+{% include 'navbar.html' %}
+
+<main class="container my-5">
+
+    <div class="card shadow-lg border-0 mb-4">
+        <div class="card-header bg-dark text-white text-center fw-bold">
+            Groupe privé
+        </div>
+
+        <div class="card-body text-center">
+
+            <h1 class="fw-bold">
+                {{ group.name }}
+            </h1>
+
+            <p>
+                Code du groupe :
+                <strong>{{ group.code }}</strong>
+            </p>
+
+            <p class="text-muted">
+                Partage ce lien avec tes amis :
+                <br>
+                <strong>/groupe/{{ group.code }}</strong>
+            </p>
+
+            <div class="d-grid gap-2 col-md-6 mx-auto">
+
+                <a href="/groupe/{{ group.code }}/predictions"
+                   class="btn btn-success btn-lg">
+                    Faire mes pronostics privés
+                </a>
+
+                <a href="/groupe/{{ group.code }}/classement"
+                   class="btn btn-primary btn-lg">
+                    Voir le classement privé
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white text-center fw-bold">
+            Membres du groupe
+        </div>
+
+        <div class="card-body">
+
+            <ul class="list-group">
+
+                {% for member in members %}
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+
+                    Membre #{{ member.visitor_id }}
+
+                    <span class="badge bg-secondary">
+                        Actif
+                    </span>
+
+                </li>
+
+                {% endfor %}
+
+            </ul>
+
+        </div>
+    </div>
+
+</main>
+
+{% include 'footer.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

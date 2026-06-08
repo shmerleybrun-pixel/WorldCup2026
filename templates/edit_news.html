@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Modifier Actualité - World Cup 2026</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+{% include 'navbar.html' %}
+
+<main class="container my-5">
+
+    <h1 class="fw-bold mb-4">Modifier une actualité</h1>
+
+    <form method="POST" class="card p-4 shadow-sm">
+
+        <div class="mb-3">
+            <label class="form-label">Titre</label>
+            <input type="text"
+                   name="title"
+                   class="form-control"
+                   value="{{ article.title }}"
+                   required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Contenu</label>
+            <textarea name="content"
+                      class="form-control"
+                      rows="5"
+                      required>{{ article.content }}</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Lien optionnel</label>
+            <input type="text"
+                   name="image"
+                   class="form-control"
+                   value="{{ article.link or '' }}">
+        </div>
+
+        <button class="btn btn-success">Sauvegarder</button>
+
+        <a href="/admin/news" class="btn btn-secondary">Retour</a>
+
+    </form>
+
+</main>
+
+{% include 'footer.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration des passeurs - World Cup 2026</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="world-bg"></div>
+
+{% include 'navbar.html' %}
+
+<div class="container mt-5 mb-5">
+
+    <h1 class="mb-4 d-flex align-items-center">
+        <img src="{{ url_for('static', filename='images/player.png') }}"
+             alt="Administration des passeurs"
+             style="width:60px; height:auto; margin-right:12px; background:none; border:none; box-shadow:none;">
+
+        Administration des passeurs
+    </h1>
+
+    <form method="POST" class="row g-3 mb-5">
+
+        <div class="col-md-4">
+            <input
+                type="text"
+                name="player_name"
+                class="form-control"
+                placeholder="Nom du joueur"
+                required>
+        </div>
+
+        <div class="col-md-3">
+            <select name="team" class="form-select" required>
+
+               <option value="">Choisir une équipe</option>
+
+               {% for team in teams %}
+
+               <option value="{{ team }}">
+                   {{ team }}
+               </option>
+
+               {% endfor %}
+
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <input
+                type="number"
+                name="assists"
+                class="form-control"
+                placeholder="Passes"
+                min="0"
+                required>
+        </div>
+
+        <div class="col-md-3">
+            <button class="btn btn-success w-100">
+                Ajouter
+            </button>
+        </div>
+
+    </form>
+
+    <div class="table-responsive">
+
+        <table class="table table-bordered table-striped align-middle text-center">
+
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Joueur</th>
+                    <th>Équipe</th>
+                    <th>Passes décisives</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for joueur in joueurs %}
+
+                <tr>
+                    <td>
+                        <strong>{{ loop.index }}</strong>
+                    </td>
+
+                    <td>
+                        <strong>{{ joueur.player_name }}</strong>
+                    </td>
+
+                    <td>
+                        <img src="https://flagcdn.com/32x24/{{ joueur.team|country_code }}.png"
+                             alt="{{ joueur.team }}"
+                             class="me-2">
+                        {{ joueur.team }}
+                    </td>
+
+                    <td>
+                        <span class="badge bg-primary fs-6">
+                            {{ joueur.assists }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <a href="/admin/passeurs/edit/{{ joueur.id }}"
+                           class="btn btn-warning btn-sm">
+                            Modifier
+                        </a>
+
+                        <a href="/admin/passeurs/delete/{{ joueur.id }}"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Voulez-vous vraiment supprimer ce joueur ?');">
+                            Supprimer
+                        </a>
+                    </td>
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="5" class="text-muted">
+                        Aucun passeur ajouté pour le moment.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap mt-4">
+
+        <a href="/passeurs" class="btn btn-primary">
+            Voir classement public
+        </a>
+
+        <a href="/admin/matchs" class="btn btn-secondary">
+            Retour Admin Matchs
+        </a>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Prédictions - World Cup 2026</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .prediction-card {
+            border: none;
+            border-radius: 22px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ffffff, #f4f7ff);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            transition: 0.3s ease;
+        }
+
+        .prediction-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+        }
+
+        .prediction-exact {
+            background: linear-gradient(135deg, #d4edda, #ffffff);
+            border: 2px solid #198754;
+        }
+
+        .prediction-good {
+            background: linear-gradient(135deg, #fff3cd, #ffffff);
+            border: 2px solid #ffc107;
+        }
+
+        .prediction-wrong {
+            background: #ffffff;
+        }
+
+        .stat-header-dark {
+            background: linear-gradient(135deg, #111827, #374151);
+            color: white;
+        }
+
+        .stat-header-blue {
+            background: linear-gradient(135deg, #002b5c, #0066ff);
+            color: white;
+        }
+
+        .stat-header-green {
+            background: linear-gradient(135deg, #006b3f, #00c853);
+            color: white;
+        }
+
+        .stat-header-icon {
+            height: 28px;
+            width: auto;
+            object-fit: contain;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .points-badge {
+            border-radius: 20px;
+            padding: 8px 14px;
+            font-weight: 700;
+        }
+
+        .score-input {
+            max-width: 80px;
+            font-weight: 700;
+        }
+
+        .prediction-legend {
+            border-radius: 18px;
+            background: linear-gradient(135deg, #eef4ff, #ffffff);
+            padding: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="world-bg"></div>
+
+{% include 'navbar.html' %}
+
+<main class="container my-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h1 class="fw-bold mb-0 d-flex align-items-center">
+            <img src="{{ url_for('static', filename='images/ball.png') }}"
+                 alt="Prédictions"
+                 class="title-icon">
+            Mes prédictions - Semaine {{ selected_week }}
+        </h1>
+
+        <a href="/logout" class="btn btn-danger">
+            Déconnexion
+        </a>
+    </div>
+
+    <p>
+        Bienvenue <strong>{{ visitor_name }}</strong>.
+        Prédisez les scores des matchs.
+    </p>
+
+    <div class="prediction-legend mb-4 text-center shadow-sm">
+        <span class="badge bg-success me-2">Vert = score exact : 3 pts</span>
+        <span class="badge bg-warning text-dark me-2">Jaune = bon résultat : 1 pt</span>
+        <span class="badge bg-secondary">Blanc = 0 pt</span>
+    </div>
+
+    <div class="card prediction-card mb-4">
+        <div class="card-header stat-header-dark text-center fw-bold">
+            <img src="{{ url_for('static', filename='images/calender.png') }}"
+                 alt="Semaines"
+                 class="stat-header-icon">
+            Semaines de pronostics
+        </div>
+
+        <div class="card-body text-center">
+
+            {% for week in weeks %}
+
+                <a href="/predictions?week={{ week.number }}"
+                   class="btn {% if selected_week == week.number %}btn-primary{% else %}btn-outline-primary{% endif %} m-1">
+
+                    Semaine {{ week.number }}
+
+                    <br>
+
+                    <small>
+                        {{ week.start_str|date_fr }} - {{ week.end_str|date_fr }}
+                    </small>
+                </a>
+
+            {% endfor %}
+
+        </div>
+    </div>
+
+    {% if current_week %}
+        <div class="alert {% if week_is_open %}alert-success{% else %}alert-warning{% endif %} text-center">
+            Pronostics de la
+            <strong>Semaine {{ current_week.number }}</strong>
+            :
+            {{ current_week.start_str|date_fr }}
+            au
+            {{ current_week.end_str|date_fr }}
+
+            <br>
+
+            {% if week_is_open %}
+                <strong>Les pronostics de cette semaine sont ouverts.</strong>
+            {% else %}
+                <strong>Les pronostics de cette semaine sont fermés.</strong>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% if not matchs %}
+        <div class="alert alert-info text-center">
+            Aucun match disponible pour cette semaine.
+        </div>
+    {% endif %}
+
+    <form method="POST">
+
+        {% for match in matchs %}
+
+            {% set prediction = prediction_map.get(match.id) %}
+            {% set card_class = "prediction-wrong" %}
+            {% set points = 0 %}
+
+            {% if prediction and match.score1 is not none and match.score2 is not none %}
+
+                {% if prediction.score1 == match.score1 and prediction.score2 == match.score2 %}
+                    {% set card_class = "prediction-exact" %}
+                    {% set points = 3 %}
+
+                {% elif
+                    (prediction.score1 > prediction.score2 and match.score1 > match.score2)
+                    or
+                    (prediction.score1 < prediction.score2 and match.score1 < match.score2)
+                    or
+                    (prediction.score1 == prediction.score2 and match.score1 == match.score2)
+                %}
+                    {% set card_class = "prediction-good" %}
+                    {% set points = 1 %}
+                {% endif %}
+
+            {% endif %}
+
+            <div class="card prediction-card {{ card_class }} mb-3">
+
+                <div class="card-header stat-header-blue text-white text-center fw-bold">
+                    <img src="{{ url_for('static', filename='images/ball.png') }}"
+                         alt="Match"
+                         class="stat-header-icon">
+                    Match {{ match.match_number }} - Groupe {{ match.group_name }}
+                </div>
+
+                <div class="card-body text-center">
+
+                    <div class="row align-items-center">
+
+                        <div class="col-md-4">
+                            <img src="https://flagcdn.com/48x36/{{ match.team1|country_code }}.png"
+                                 alt="{{ match.team1 }}">
+                            <h5 class="mt-2">{{ match.team1 }}</h5>
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="d-flex justify-content-center gap-2 mb-3">
+
+                                <input type="number"
+                                       name="score1_{{ match.id }}"
+                                       class="form-control text-center score-input"
+                                       min="0"
+                                       value="{% if prediction %}{{ prediction.score1 }}{% endif %}"
+                                       {% if not week_is_open %}disabled{% endif %}>
+
+                                <strong class="pt-2">-</strong>
+
+                                <input type="number"
+                                       name="score2_{{ match.id }}"
+                                       class="form-control text-center score-input"
+                                       min="0"
+                                       value="{% if prediction %}{{ prediction.score2 }}{% endif %}"
+                                       {% if not week_is_open %}disabled{% endif %}>
+
+                            </div>
+
+                            {% if match.score1 is not none and match.score2 is not none %}
+                                <div class="mb-2">
+                                    <small class="text-muted">
+                                        Score réel :
+                                        <strong>{{ match.score1 }} - {{ match.score2 }}</strong>
+                                    </small>
+                                </div>
+
+                                {% if points == 3 %}
+                                    <span class="badge bg-success points-badge">
+                                        +3 pts
+                                    </span>
+                                {% elif points == 1 %}
+                                    <span class="badge bg-warning text-dark points-badge">
+                                        +1 pt
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary points-badge">
+                                        0 pt
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    Match non joué
+                                </span>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="col-md-4">
+                            <img src="https://flagcdn.com/48x36/{{ match.team2|country_code }}.png"
+                                 alt="{{ match.team2 }}">
+                            <h5 class="mt-2">{{ match.team2 }}</h5>
+                        </div>
+
+                    </div>
+
+                    <hr>
+
+                    <small class="text-muted">
+                        <img src="{{ url_for('static', filename='images/calender.png') }}"
+                             alt="Date"
+                             class="stat-header-icon">
+                        {{ match.match_date|date_fr }} • {{ match.match_time }}
+
+                        <br>
+
+                        <img src="{{ url_for('static', filename='images/stadium.png') }}"
+                             alt="Stade"
+                             class="stat-header-icon">
+                        {{ match.stadium }}
+                    </small>
+
+                </div>
+            </div>
+
+        {% endfor %}
+
+        {% if session.get("role") == "visitor" %}
+
+            {% if week_is_open %}
+                <button class="btn btn-success btn-lg w-100">
+                    Enregistrer mes prédictions
+                </button>
+            {% else %}
+                <div class="alert alert-warning text-center">
+                    Les pronostics de cette semaine sont fermés.
+                </div>
+            {% endif %}
+
+        {% endif %}
+
+    </form>
+
+</main>
+
+{% include 'footer.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
