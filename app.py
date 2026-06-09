@@ -19,6 +19,14 @@ from reportlab.platypus import (
 
 from reportlab.lib.styles import getSampleStyleSheet
 
+MAIL_SERVER = "smtp.titan.email"
+MAIL_PORT = 465
+MAIL_USE_SSL = True
+MAIL_USE_TLS = False
+
+MAIL_USERNAME = "custpriority@fozifoot.com"
+MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
+
 import random
 import string
 import smtplib
@@ -406,11 +414,17 @@ def generate_group_code():
         if existing_group is None:
             return code
 
+import os
+import smtplib
+from email.message import EmailMessage
+
 def send_reset_email(to_email, code):
-    sender_email = "shmerley1@gmail.com"
-    app_password = "Mot de passe"
+
+    sender_email = os.environ.get("MAIL_USERNAME")
+    sender_password = os.environ.get("MAIL_PASSWORD")
 
     message = EmailMessage()
+
     message["Subject"] = "World Cup 2026 - Code de récupération"
     message["From"] = sender_email
     message["To"] = to_email
@@ -422,16 +436,24 @@ Votre code de récupération World Cup 2026 est :
 
 {code}
 
-Si vous n'avez pas demandé ce code, ignorez ce message.
+Si vous n'avez pas demandé ce code, ignorez simplement cet email.
 
-<strong>World Cup 2026</strong><br> Contact : fozifoot@gmail.com<br> WaZisTour LTD
+World Cup 2026
+Contact : custpriority@fozifoot.com
+WaZisTour LTD
 """)
 
     try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-            smtp.login(sender_email, app_password)
+        with smtplib.SMTP_SSL(
+            os.environ.get("MAIL_SERVER"),
+            int(os.environ.get("MAIL_PORT"))
+        ) as smtp:
+
+            smtp.login(sender_email, sender_password)
             smtp.send_message(message)
+
         return True
+
     except Exception as e:
         print("ERREUR EMAIL :", e)
         return False
