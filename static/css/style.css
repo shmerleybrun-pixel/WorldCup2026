@@ -1255,7 +1255,10 @@ body {
 
 .hero-cup-large,
 .hero-ball-large {
-    max-width: 230px;
-    height: 230px;
+    width: 100%;
+    max-width: 330px;
+    height: 330px;
     object-fit: contain;
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
