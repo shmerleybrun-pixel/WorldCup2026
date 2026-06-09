@@ -1169,3 +1169,15 @@ font-size: 28px;
         display: none;
     }
 }
+.login-side-mascot {
+    width: 450px !important;
+    max-width: 450px !important;
+}
+
+.login-mascot-left {
+    margin-left: -120px !important;
+}
+
+.login-mascot-right {
+    margin-right: -120px !important;
+}

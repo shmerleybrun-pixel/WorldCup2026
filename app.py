@@ -2694,6 +2694,9 @@ send_email(
 flash("Votre demande a été envoyée avec succès.")
 return redirect("/")
 
+@app.route("/sponsor")
+def sponsor():
+    return render_template("sponsor.html")
 
 
 if __name__ == "__main__":

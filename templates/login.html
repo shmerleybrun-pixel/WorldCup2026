@@ -16,6 +16,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        overflow: hidden;
     }
 
     .login-layout-row {
@@ -25,9 +26,9 @@
     }
 
     .login-side-mascot {
-        max-width: 390px;
-        width: 100%;
-        height: auto;
+        width: 460px !important;
+        max-width: 460px !important;
+        height: auto !important;
         object-fit: contain;
         filter: drop-shadow(0 14px 24px rgba(0,0,0,0.35));
         transition: all 0.3s ease;
@@ -35,16 +36,18 @@
     }
 
     .login-side-mascot:hover {
-        transform: scale(1.07);
+        transform: scale(1.08);
         filter: drop-shadow(0 0 18px rgba(255, 215, 0, 0.85));
     }
 
     .login-mascot-left {
-        transform: translateX(-70px);
+        transform: translateX(-140px);
+        z-index: 1;
     }
 
     .login-mascot-right {
-        transform: translateX(70px);
+        transform: translateX(140px);
+        z-index: 1;
     }
 
     .login-mascot-right a {
@@ -56,20 +59,36 @@
         border-radius: 22px !important;
         overflow: hidden;
         position: relative;
-        z-index: 2;
+        z-index: 3;
+    }
+
+    @media (max-width: 1400px) {
+        .login-side-mascot {
+            width: 390px !important;
+            max-width: 390px !important;
+        }
+
+        .login-mascot-left {
+            transform: translateX(-90px);
+        }
+
+        .login-mascot-right {
+            transform: translateX(90px);
+        }
     }
 
     @media (max-width: 1200px) {
         .login-side-mascot {
-            max-width: 310px;
+            width: 320px !important;
+            max-width: 320px !important;
         }
 
         .login-mascot-left {
-            transform: translateX(-35px);
+            transform: translateX(-45px);
         }
 
         .login-mascot-right {
-            transform: translateX(35px);
+            transform: translateX(45px);
         }
     }
 
@@ -78,25 +97,29 @@
             min-height: auto;
             padding-top: 25px;
             padding-bottom: 25px;
+            overflow: visible;
         }
 
         .login-mascot-left,
         .login-mascot-right {
             transform: none;
+            margin-bottom: 15px;
         }
 
         .login-side-mascot {
-            max-width: 210px;
-            margin-bottom: 15px;
+            width: 230px !important;
+            max-width: 230px !important;
         }
     }
 
     @media (max-width: 576px) {
         .login-side-mascot {
-            max-width: 160px;
+            width: 170px !important;
+            max-width: 170px !important;
         }
     }
 </style>
+
 
 </head>
 
@@ -107,6 +130,7 @@
 {% include 'navbar.html' %}
 
 <div class="container-fluid my-5 login-page-wrapper">
+
 
 <div class="row login-layout-row">
 
