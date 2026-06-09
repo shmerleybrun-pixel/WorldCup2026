@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, redirect, session
 from datetime import timedelta, date, datetime
 from flask_sqlalchemy import SQLAlchemy
@@ -19,12 +20,11 @@ from reportlab.platypus import (
 
 from reportlab.lib.styles import getSampleStyleSheet
 
-MAIL_SERVER = "smtp.titan.email"
-MAIL_PORT = 465
+MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.titan.email")
+MAIL_PORT = int(os.environ.get("MAIL_PORT", "465"))
 MAIL_USE_SSL = True
 MAIL_USE_TLS = False
-
-MAIL_USERNAME = "custpriority@fozifoot.com"
+MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "custpriority@fozifoot.com")
 MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
 
 import random
@@ -414,17 +414,18 @@ def generate_group_code():
         if existing_group is None:
             return code
 
-import os
-import smtplib
-from email.message import EmailMessage
-
 def send_reset_email(to_email, code):
 
-    sender_email = os.environ.get("MAIL_USERNAME")
-    sender_password = os.environ.get("MAIL_PASSWORD")
+    sender_email = os.environ.get("MAIL_USERNAME", MAIL_USERNAME)
+    sender_password = os.environ.get("MAIL_PASSWORD", MAIL_PASSWORD)
+    mail_server = os.environ.get("MAIL_SERVER", MAIL_SERVER)
+    mail_port = int(os.environ.get("MAIL_PORT", MAIL_PORT))
+
+    if not sender_email or not sender_password:
+        print("ERREUR EMAIL : MAIL_USERNAME ou MAIL_PASSWORD manquant.")
+        return False
 
     message = EmailMessage()
-
     message["Subject"] = "World Cup 2026 - Code de récupération"
     message["From"] = sender_email
     message["To"] = to_email
@@ -444,11 +445,7 @@ WaZisTour LTD
 """)
 
     try:
-        with smtplib.SMTP_SSL(
-            os.environ.get("MAIL_SERVER"),
-            int(os.environ.get("MAIL_PORT"))
-        ) as smtp:
-
+        with smtplib.SMTP_SSL(mail_server, mail_port) as smtp:
             smtp.login(sender_email, sender_password)
             smtp.send_message(message)
 
@@ -2668,7 +2665,7 @@ def set_language(lang):
 
     session['lang'] = lang
 
-    return redirect(request.referrer or url_for('index'))
+    return redirect(request.referrer or url_for('home'))
 
 @app.route("/sponsor")
 def sponsor():
@@ -2676,19 +2673,25 @@ def sponsor():
 
 
 def send_sponsor_email(subject, body):
-    sender_email = "shmerley1@gmail.com"
-    app_password = "Mot de passe"
+    sender_email = os.environ.get("MAIL_USERNAME", MAIL_USERNAME)
+    sender_password = os.environ.get("MAIL_PASSWORD", MAIL_PASSWORD)
+    mail_server = os.environ.get("MAIL_SERVER", MAIL_SERVER)
+    mail_port = int(os.environ.get("MAIL_PORT", MAIL_PORT))
+
+    if not sender_email or not sender_password:
+        print("ERREUR EMAIL SPONSOR : MAIL_USERNAME ou MAIL_PASSWORD manquant.")
+        return False
 
     message = EmailMessage()
     message["Subject"] = subject
     message["From"] = sender_email
     message["To"] = "custpriority@fozifoot.com"
-
+    message["Reply-To"] = sender_email
     message.set_content(body)
 
     try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-            smtp.login(sender_email, app_password)
+        with smtplib.SMTP_SSL(mail_server, mail_port) as smtp:
+            smtp.login(sender_email, sender_password)
             smtp.send_message(message)
         return True
     except Exception as e:
