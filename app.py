@@ -2648,55 +2648,72 @@ def set_language(lang):
 
     return redirect(request.referrer or url_for('index'))
 
-@app.route('/sponsor-contact', methods=['POST'])
+@app.route("/sponsor")
+def sponsor():
+    return render_template("sponsor.html", active_page="sponsor")
+
+
+def send_sponsor_email(subject, body):
+    sender_email = "shmerley1@gmail.com"
+    app_password = "Mot de passe"
+
+    message = EmailMessage()
+    message["Subject"] = subject
+    message["From"] = sender_email
+    message["To"] = "custpriority@fozifoot.com"
+
+    message.set_content(body)
+
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+            smtp.login(sender_email, app_password)
+            smtp.send_message(message)
+        return True
+    except Exception as e:
+        print("ERREUR EMAIL SPONSOR :", e)
+        return False
+
+
+@app.route("/sponsor-contact", methods=["POST"])
 def sponsor_contact():
+    company = request.form.get("company")
+    contact_name = request.form.get("contact_name")
+    email = request.form.get("email")
+    phone = request.form.get("phone")
+    country = request.form.get("country")
+    website = request.form.get("website")
+    partnership_type = request.form.get("partnership_type")
+    budget = request.form.get("budget")
+    message = request.form.get("message")
 
-company = request.form.get('company')
-contact_name = request.form.get('contact_name')
-email = request.form.get('email')
-phone = request.form.get('phone')
-country = request.form.get('country')
-website = request.form.get('website')
-partnership_type = request.form.get('partnership_type')
-budget = request.form.get('budget')
-message = request.form.get('message')
+    subject = f"Nouvelle demande de sponsoring FoziFoot - {company}"
 
-subject = f"Nouvelle demande de sponsoring - {company}"
-
-body = f"""
-
-
+    body = f"""
 Nouvelle demande de sponsoring FoziFoot
 
-Entreprise: {company}
-Contact: {contact_name}
-Email: {email}
-Téléphone: {phone}
-Pays: {country}
-Site Web: {website}
+Entreprise : {company}
+Contact : {contact_name}
+Email : {email}
+Téléphone : {phone}
+Pays : {country}
+Site Web : {website}
 
-Type de partenariat:
+Type de partenariat :
 {partnership_type}
 
-Budget:
+Budget :
 {budget}
 
-Message:
+Message :
 {message}
 """
 
-send_email(
-    "custpriority@fozifoot.com",
-    subject,
-    body
-)
+    email_sent = send_sponsor_email(subject, body)
 
-flash("Votre demande a été envoyée avec succès.")
-return redirect("/")
+    if email_sent:
+        return redirect("/sponsor?success=1")
 
-@app.route("/sponsor")
-def sponsor():
-    return render_template("sponsor.html")
+    return redirect("/sponsor?error=1")
 
 
 if __name__ == "__main__":
