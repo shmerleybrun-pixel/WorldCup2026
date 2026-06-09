@@ -2648,6 +2648,53 @@ def set_language(lang):
 
     return redirect(request.referrer or url_for('index'))
 
+@app.route('/sponsor-contact', methods=['POST'])
+def sponsor_contact():
+
+company = request.form.get('company')
+contact_name = request.form.get('contact_name')
+email = request.form.get('email')
+phone = request.form.get('phone')
+country = request.form.get('country')
+website = request.form.get('website')
+partnership_type = request.form.get('partnership_type')
+budget = request.form.get('budget')
+message = request.form.get('message')
+
+subject = f"Nouvelle demande de sponsoring - {company}"
+
+body = f"""
+
+
+Nouvelle demande de sponsoring FoziFoot
+
+Entreprise: {company}
+Contact: {contact_name}
+Email: {email}
+Téléphone: {phone}
+Pays: {country}
+Site Web: {website}
+
+Type de partenariat:
+{partnership_type}
+
+Budget:
+{budget}
+
+Message:
+{message}
+"""
+
+send_email(
+    "custpriority@fozifoot.com",
+    subject,
+    body
+)
+
+flash("Votre demande a été envoyée avec succès.")
+return redirect("/")
+
+
 
 if __name__ == "__main__":
 

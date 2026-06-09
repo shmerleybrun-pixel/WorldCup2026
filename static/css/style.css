@@ -1133,6 +1133,39 @@ font-size: 28px;
 
 }
 
-git add .
-git commit -m "Add Fozi mascots to login page"
-git push origin main
+/* LOGIN PAGE FOZI MASCOTS */
+
+.login-page-wrapper {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    align-items: center;
+}
+
+.login-side-mascot {
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 14px 24px rgba(0,0,0,0.35));
+    transition: all 0.3s ease;
+}
+
+.login-side-mascot:hover {
+    transform: scale(1.05);
+}
+
+.login-card {
+    border-radius: 22px !important;
+    overflow: hidden;
+}
+
+/* Mobile */
+@media (max-width: 991px) {
+    .login-page-wrapper {
+        min-height: auto;
+    }
+
+    .login-side-mascot {
+        display: none;
+    }
+}

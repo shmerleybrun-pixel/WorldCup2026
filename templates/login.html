@@ -15,33 +15,85 @@
         min-height: calc(100vh - 120px);
         display: flex;
         align-items: center;
+        justify-content: center;
+    }
+
+    .login-layout-row {
+        width: 100%;
+        align-items: center;
+        justify-content: center;
     }
 
     .login-side-mascot {
-        max-width: 300px;
+        max-width: 390px;
         width: 100%;
         height: auto;
         object-fit: contain;
         filter: drop-shadow(0 14px 24px rgba(0,0,0,0.35));
         transition: all 0.3s ease;
+        cursor: pointer;
     }
 
     .login-side-mascot:hover {
-        transform: scale(1.05);
+        transform: scale(1.07);
+        filter: drop-shadow(0 0 18px rgba(255, 215, 0, 0.85));
+    }
+
+    .login-mascot-left {
+        transform: translateX(-70px);
+    }
+
+    .login-mascot-right {
+        transform: translateX(70px);
+    }
+
+    .login-mascot-right a {
+        display: inline-block;
+        text-decoration: none;
     }
 
     .login-card {
         border-radius: 22px !important;
         overflow: hidden;
+        position: relative;
+        z-index: 2;
+    }
+
+    @media (max-width: 1200px) {
+        .login-side-mascot {
+            max-width: 310px;
+        }
+
+        .login-mascot-left {
+            transform: translateX(-35px);
+        }
+
+        .login-mascot-right {
+            transform: translateX(35px);
+        }
     }
 
     @media (max-width: 991px) {
         .login-page-wrapper {
             min-height: auto;
+            padding-top: 25px;
+            padding-bottom: 25px;
+        }
+
+        .login-mascot-left,
+        .login-mascot-right {
+            transform: none;
         }
 
         .login-side-mascot {
-            display: none;
+            max-width: 210px;
+            margin-bottom: 15px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .login-side-mascot {
+            max-width: 160px;
         }
     }
 </style>
@@ -54,17 +106,17 @@
 
 {% include 'navbar.html' %}
 
-<div class="container my-5 login-page-wrapper">
+<div class="container-fluid my-5 login-page-wrapper">
 
-<div class="row align-items-center justify-content-center w-100">
+<div class="row login-layout-row">
 
-    <div class="col-lg-3 text-center d-none d-lg-block">
+    <div class="col-lg-3 col-md-12 text-center login-mascot-left">
         <img src="{{ url_for('static', filename='images/foziM3.png') }}"
-             alt="Mascotte FoziFoot"
+             alt="Mascotte FoziFoot gauche"
              class="login-side-mascot">
     </div>
 
-    <div class="col-lg-5 col-md-8">
+    <div class="col-lg-5 col-md-8 col-sm-11">
 
         <div class="card shadow-lg border-0 login-card">
 
@@ -148,10 +200,12 @@
 
     </div>
 
-    <div class="col-lg-3 text-center d-none d-lg-block">
-        <img src="{{ url_for('static', filename='images/foziM4.png') }}"
-             alt="Mascotte FoziFoot"
-             class="login-side-mascot">
+    <div class="col-lg-3 col-md-12 text-center login-mascot-right">
+        <a href="/sponsor" title="Devenir sponsor FoziFoot">
+            <img src="{{ url_for('static', filename='images/foziM4.png') }}"
+                 alt="Devenir sponsor FoziFoot"
+                 class="login-side-mascot">
+        </a>
     </div>
 
 </div>
