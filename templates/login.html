@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 
 <head>
@@ -6,9 +7,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - World Cup 2026</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<style>
+    .login-page-wrapper {
+        min-height: calc(100vh - 120px);
+        display: flex;
+        align-items: center;
+    }
+
+    .login-side-mascot {
+        max-width: 300px;
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+        filter: drop-shadow(0 14px 24px rgba(0,0,0,0.35));
+        transition: all 0.3s ease;
+    }
+
+    .login-side-mascot:hover {
+        transform: scale(1.05);
+    }
+
+    .login-card {
+        border-radius: 22px !important;
+        overflow: hidden;
+    }
+
+    @media (max-width: 991px) {
+        .login-page-wrapper {
+            min-height: auto;
+        }
+
+        .login-side-mascot {
+            display: none;
+        }
+    }
+</style>
+
 </head>
 
 <body>
@@ -17,98 +54,91 @@
 
 {% include 'navbar.html' %}
 
-<div class="container my-5">
+<div class="container my-5 login-page-wrapper">
 
-    <div class="row justify-content-center">
+<div class="row align-items-center justify-content-center w-100">
 
-        <div class="col-lg-5">
+    <div class="col-lg-3 text-center d-none d-lg-block">
+        <img src="{{ url_for('static', filename='images/foziM3.png') }}"
+             alt="Mascotte FoziFoot"
+             class="login-side-mascot">
+    </div>
 
-            <div class="card shadow-lg border-0">
+    <div class="col-lg-5 col-md-8">
 
-                <div class="card-header bg-dark text-white text-center">
+        <div class="card shadow-lg border-0 login-card">
 
-                    <img src="{{ url_for('static', filename='images/ball.png') }}"
-                         width="60"
-                         class="mb-2">
+            <div class="card-header bg-dark text-white text-center">
 
-                    <h3 class="mb-0">
-                        Connexion
-                    </h3>
+                <img src="{{ url_for('static', filename='images/ball.png') }}"
+                     width="60"
+                     class="mb-2"
+                     alt="World Cup 2026">
 
+                <h3 class="mb-0">
+                    Connexion
+                </h3>
+
+            </div>
+
+            <div class="card-body p-4">
+
+                {% if error %}
+                <div class="alert alert-danger text-center">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <form method="POST">
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Email visiteur ou nom admin
+                        </label>
+
+                        <input type="text"
+                               name="email_or_username"
+                               class="form-control"
+                               required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Mot de passe
+                        </label>
+
+                        <input type="password"
+                               name="password"
+                               class="form-control"
+                               required>
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-primary w-100">
+                        Se connecter
+                    </button>
+
+                </form>
+
+                <div class="text-center mt-3">
+                    <a href="/forgot-password"
+                       class="text-decoration-none fw-bold">
+                        Mot de passe oublié ?
+                    </a>
                 </div>
 
-                <div class="card-body p-4">
+                <hr>
 
-                    {% if error %}
-                    <div class="alert alert-danger text-center">
-                        {{ error }}
-                    </div>
-                    {% endif %}
+                <div class="text-center">
 
-                    <form method="POST">
+                    <p class="mb-2">
+                        Nouveau visiteur ?
+                    </p>
 
-                        <div class="mb-3">
-
-                            <label class="form-label">
-                                Email visiteur ou nom admin
-                            </label>
-
-                            <input type="text"
-                                   name="email_or_username"
-                                   class="form-control"
-                                   required>
-
-                        </div>
-
-                        <div class="mb-3">
-
-                            <label class="form-label">
-                                Mot de passe
-                            </label>
-
-                            <input type="password"
-                                   name="password"
-                                   class="form-control"
-                                   required>
-
-                        </div>
-
-                        <button type="submit"
-                                class="btn btn-primary w-100">
-
-                            Se connecter
-
-                        </button>
-
-                    </form>
-
-                    <div class="text-center mt-3">
-
-                        <a href="/forgot-password"
-                           class="text-decoration-none fw-bold">
-
-                            Mot de passe oublié ?
-
-                        </a>
-
-                    </div>
-
-                    <hr>
-
-                    <div class="text-center">
-
-                        <p class="mb-2">
-                            Nouveau visiteur ?
-                        </p>
-
-                        <a href="/register"
-                           class="btn btn-success">
-
-                            Créer un compte
-
-                        </a>
-
-                    </div>
+                    <a href="/register"
+                       class="btn btn-success">
+                        Créer un compte
+                    </a>
 
                 </div>
 
@@ -118,7 +148,17 @@
 
     </div>
 
+    <div class="col-lg-3 text-center d-none d-lg-block">
+        <img src="{{ url_for('static', filename='images/foziM4.png') }}"
+             alt="Mascotte FoziFoot"
+             class="login-side-mascot">
+    </div>
+
 </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
