@@ -1252,3 +1252,10 @@ body {
         margin: 8px;
     }
 }
+
+.hero-cup-large,
+.hero-ball-large {
+    max-width: 230px;
+    height: 230px;
+    object-fit: contain;
+}
