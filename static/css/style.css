@@ -1132,3 +1132,7 @@ font-size: 28px;
 }
 
 }
+
+git add .
+git commit -m "Add Fozi mascots to login page"
+git push origin main
