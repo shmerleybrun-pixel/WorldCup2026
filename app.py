@@ -2786,9 +2786,7 @@ def admin_tickets():
 
 @app.route("/sitemap.xml")
 def sitemap():
-
-xml = """<?xml version="1.0" encoding="UTF-8"?>
-
+    xml = """<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
@@ -2851,11 +2849,14 @@ xml = """<?xml version="1.0" encoding="UTF-8"?>
 <priority>0.6</priority>
 </url>
 
+<url>
+<loc>https://fozifoot.com/sponsor</loc>
+<priority>0.7</priority>
+</url>
+
 </urlset>
 """
-
-return Response(xml, mimetype="application/xml")
-
+    return Response(xml, mimetype="application/xml")
 
 
 if __name__ == "__main__":
