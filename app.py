@@ -2424,6 +2424,18 @@ def private_group_predictions(code):
         active_page="predictions"
     )
 
+@app.route("/admin/users")
+@admin_required
+def admin_users():
+    users = Visitor.query.order_by(Visitor.id.desc()).all()
+
+    result = "<h1>Utilisateurs enregistrés</h1>"
+
+    for user in users:
+        result += f"<p>{user.id} - {user.full_name} - {user.email}</p>"
+
+    return result
+
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
 
