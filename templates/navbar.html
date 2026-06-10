@@ -88,6 +88,27 @@
                         <a class="nav-link {% if active_page == 'predictions' %}active{% endif %}" href="/predictions">Prédictions</a>
                     </li>
 
+
+
+
+
+                    <li class="nav-item ms-3">
+                       <a class="nav-link d-flex align-items-center p-0">
+                           <img src="{{ url_for('static', filename='images/prono.png') }}"
+                                alt="Pronostiqueurs"
+                                style="height:30px;width:auto;margin-right:8px;">
+
+                           <span class="fw-bold text-warning">
+                               {{ pronostiqueurs_count|default(0) }}/200
+                           </span>
+                       </a>
+                    </li>
+
+
+
+
+                    
+
                 {% elif session.get("role") == "visitor" %}
 
                     <li class="nav-item">

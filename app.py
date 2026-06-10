@@ -232,24 +232,32 @@ def prediction_points(prediction):
     return 0
 
 @app.context_processor
-def inject_user_points():
+def inject_global_template_data():
+    """
+    Données disponibles automatiquement dans toutes les pages
+    qui incluent navbar.html.
+    """
 
     total_points = 0
+    pronostiqueurs_count = 0
+
+    try:
+        pronostiqueurs_count = db.session.query(
+            Prediction.visitor_id
+        ).distinct().count()
+    except Exception:
+        pronostiqueurs_count = 0
 
     if session.get("role") == "visitor":
-
-        visitor = Visitor.query.get(
-            session.get("visitor_id")
-        )
+        visitor = Visitor.query.get(session.get("visitor_id"))
 
         if visitor:
-
             for prediction in visitor.predictions:
-
                 total_points += prediction_points(prediction)
 
     return dict(
-        user_points=total_points
+        user_points=total_points,
+        pronostiqueurs_count=pronostiqueurs_count
     )
 
 

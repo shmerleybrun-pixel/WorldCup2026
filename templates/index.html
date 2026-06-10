@@ -74,17 +74,6 @@
         font-size: 18px;
     }
 
-    .predictor-counter-card {
-        background: linear-gradient(135deg, #ffffff, #f4f7ff);
-        border-left: 6px solid #FFD700 !important;
-    }
-
-    .predictor-counter-number {
-        font-size: clamp(28px, 5vw, 46px);
-        font-weight: 900;
-        color: #00209F;
-    }
-
     .live-video-section {
         margin-top: 50px;
         margin-bottom: 50px;
@@ -166,7 +155,6 @@
     }
 </style>
 
-
 </head>
 
 <body>
@@ -181,7 +169,6 @@
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content contest-modal-content">
 
-
         <button type="button"
                 class="btn-close btn-close-white contest-close-btn"
                 data-bs-dismiss="modal"
@@ -195,13 +182,11 @@
     </div>
 </div>
 
-
 </div>
 
 <section class="hero-box">
     <div class="container-fluid">
         <div class="hero-row-fixed">
-
 
         <div class="hero-side">
             <a href="{{ url_for('cup1') }}">
@@ -237,12 +222,10 @@
     </div>
 </div>
 
-
 </section>
 
 <div class="container mt-5">
     <div class="row text-center">
-
 
     <div class="col-lg-4 col-md-6 mb-4">
         <div class="card shadow-sm h-100 home-card">
@@ -288,32 +271,9 @@
 
 </div>
 
-
-</div>
-
-<!-- COMPTEUR PRONOSTIQUEURS -->
-
-<div class="container my-4">
-    <div class="card shadow-lg border-0 text-center predictor-counter-card">
-        <div class="card-body py-4">
-
-
-        <div class="predictor-counter-number">
-            👥 {{ pronostiqueurs_count|default(0) }} / 200
-        </div>
-
-        <div class="fw-bold text-muted mt-2">
-            Pronostiqueurs uniques
-        </div>
-
-    </div>
-</div>
-
-
 </div>
 
 <div class="container mt-5 mb-5">
-
 
 <div class="row text-center">
 
@@ -434,11 +394,9 @@
 
 {% endif %}
 
-
 </div>
 
 <div class="container mt-5 mb-5">
-
 
 <div class="card shadow-lg border-0 news-home-card">
 
@@ -492,11 +450,9 @@
 
 </div>
 
-
 </div>
 
 <div class="container mt-5 mb-5">
-
 
 <h2 class="text-center fw-bold mb-4">
     <img src="{{ url_for('static', filename='images/ball.png') }}"
@@ -587,14 +543,12 @@
 
 {% endif %}
 
-
 </div>
 
 {% if live_video %}
 
 <section class="live-video-section">
     <div class="container">
-
 
     <div class="card shadow-lg border-0 live-video-card">
 
@@ -609,7 +563,6 @@
     </div>
 
 </div>
-
 
 </section>
 {% endif %}
