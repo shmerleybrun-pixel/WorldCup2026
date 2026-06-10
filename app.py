@@ -477,6 +477,7 @@ def home():
     
     live_video = LiveVideo.query.filter_by(is_active=True).first()
     news = News.query.order_by(News.id.desc()).limit(3).all()
+    pronostiqueurs_count = db.session.query(Prediction.visitor_id).distinct().count()
 
     return render_template(
         "index.html",
@@ -489,6 +490,7 @@ def home():
         meilleur_passeur=meilleur_passeur,
         news=news,
         live_video=live_video,
+        pronostiqueurs_count=pronostiqueurs_count,
         active_page="home"
     )
 

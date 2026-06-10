@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription - World Cup 2026</title>
 
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
@@ -26,8 +27,8 @@
     }
 
     .register-side-mascot {
-        width: 460px !important;
-        max-width: 460px !important;
+        width: 350px !important;
+        max-width: 350px !important;
         height: auto !important;
         object-fit: contain;
         filter: drop-shadow(0 14px 24px rgba(0,0,0,0.35));
@@ -36,17 +37,17 @@
     }
 
     .register-side-mascot:hover {
-        transform: scale(1.08);
+        transform: scale(1.06);
         filter: drop-shadow(0 0 18px rgba(255, 215, 0, 0.85));
     }
 
     .register-mascot-left {
-        transform: translateX(-140px);
+        margin-left: -10px !important;
         z-index: 1;
     }
 
     .register-mascot-right {
-        transform: translateX(140px);
+        margin-right: -10px !important;
         z-index: 1;
     }
 
@@ -62,34 +63,10 @@
         z-index: 3;
     }
 
-    @media (max-width: 1400px) {
-        .register-side-mascot {
-            width: 390px !important;
-            max-width: 390px !important;
-        }
-
-        .register-mascot-left {
-            transform: translateX(-90px);
-        }
-
-        .register-mascot-right {
-            transform: translateX(90px);
-        }
-    }
-
-    @media (max-width: 1200px) {
-        .register-side-mascot {
-            width: 320px !important;
-            max-width: 320px !important;
-        }
-
-        .register-mascot-left {
-            transform: translateX(-45px);
-        }
-
-        .register-mascot-right {
-            transform: translateX(45px);
-        }
+    .contest-rules-box {
+        border-left: 6px solid #FFD700;
+        background: #fff8d8;
+        border-radius: 14px;
     }
 
     @media (max-width: 991px) {
@@ -102,13 +79,14 @@
 
         .register-mascot-left,
         .register-mascot-right {
-            transform: none;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
             margin-bottom: 15px;
         }
 
         .register-side-mascot {
-            width: 230px !important;
-            max-width: 230px !important;
+            width: 220px !important;
+            max-width: 220px !important;
         }
     }
 
@@ -120,6 +98,7 @@
     }
 </style>
 
+
 </head>
 
 <body>
@@ -129,6 +108,7 @@
 {% include 'navbar.html' %}
 
 <div class="container-fluid my-5 register-page-wrapper">
+
 
 <div class="row register-layout-row">
 
@@ -223,6 +203,36 @@
 
                 </div>
 
+                <hr>
+
+                <div class="alert alert-warning mt-3 contest-rules-box">
+
+                    <h5 class="fw-bold text-center">
+                        🏆 CONCOURS OFFICIEL FOZIFOOT WORLD CUP 2026
+                    </h5>
+
+                    <p class="mb-2">
+                        ⚽ Deviens le meilleur pronostiqueur du Mondial 2026.
+                    </p>
+
+                    <p class="mb-2">
+                        Le Grand Prix de <strong>500 $ USD</strong> sera attribué
+                        au meilleur pronostiqueur à la fin de la compétition.
+                    </p>
+
+                    <p class="mb-2">
+                        Le concours sera officiellement validé lorsque FoziFoot atteindra
+                        un minimum de <strong>200 pronostiqueurs constents et uniques</strong>.
+                    </p>
+
+                    <small>
+                        Chaque utilisateur est comptabilisé une seule fois dès son premier pronostic.
+                        Les pronostics supplémentaires du même utilisateur ne sont pas comptés
+                        comme de nouveaux pronostiqueurs.
+                    </small>
+
+                </div>
+
             </div>
 
         </div>
@@ -238,6 +248,7 @@
     </div>
 
 </div>
+
 
 </div>
 
