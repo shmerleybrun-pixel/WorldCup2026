@@ -2750,6 +2750,36 @@ Message :
 
     return redirect("/sponsor?error=1")
 
+@app.route("/admin/tickets")
+@admin_required
+def admin_tickets():
+    search = request.args.get("search", "").strip()
+
+    query = db.session.query(PredictionReceipt, Visitor).join(
+        Visitor,
+        PredictionReceipt.visitor_id == Visitor.id
+    )
+
+    if search:
+        query = query.filter(
+            db.or_(
+                Visitor.full_name.ilike(f"%{search}%"),
+                Visitor.email.ilike(f"%{search}%"),
+                PredictionReceipt.receipt_number.ilike(f"%{search}%")
+            )
+        )
+
+    tickets = query.order_by(
+        PredictionReceipt.id.desc()
+    ).all()
+
+    return render_template(
+        "admin_tickets.html",
+        tickets=tickets,
+        search=search,
+        active_page="admin_tickets"
+    )
+
 
 if __name__ == "__main__":
 
