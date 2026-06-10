@@ -7,6 +7,8 @@ from functools import wraps
 from io import BytesIO
 from email.message import EmailMessage
 
+from zoneinfo import ZoneInfo
+
 from flask import (
     Flask,
     render_template,
@@ -35,6 +37,7 @@ MAIL_USE_SSL = True
 MAIL_USE_TLS = False
 MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "custpriority@fozifoot.com")
 MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
+MATCH_TIMEZONE = os.environ.get("MATCH_TIMEZONE", "America/New_York")
 
 app = Flask(__name__)
 
@@ -235,6 +238,38 @@ def prediction_points(prediction):
 
     return 0
 
+
+def match_is_open(match):
+    """
+    Retourne True si le match est encore ouvert aux pronostics.
+    Règle FoziFoot : chaque match ferme 20 minutes avant son coup d'envoi.
+
+    Les dates/heures des matchs sont lues depuis match.match_date et match.match_time.
+    Par défaut, elles sont interprétées dans le fuseau America/New_York.
+    Vous pouvez changer ce fuseau dans Render avec la variable MATCH_TIMEZONE.
+    """
+
+    try:
+        if not match.match_date or not match.match_time:
+            return False
+
+        match_datetime = datetime.strptime(
+            f"{match.match_date} {match.match_time}",
+            "%Y-%m-%d %H:%M"
+        )
+
+        timezone = ZoneInfo(MATCH_TIMEZONE)
+        match_datetime = match_datetime.replace(tzinfo=timezone)
+
+        closing_datetime = match_datetime - timedelta(minutes=20)
+        now = datetime.now(timezone)
+
+        return now < closing_datetime
+
+    except Exception:
+        return False
+
+
 @app.context_processor
 def inject_global_template_data():
     """
@@ -261,7 +296,8 @@ def inject_global_template_data():
 
     return dict(
         user_points=total_points,
-        pronostiqueurs_count=pronostiqueurs_count
+        pronostiqueurs_count=pronostiqueurs_count,
+        match_is_open=match_is_open
     )
 
 
@@ -1816,6 +1852,9 @@ def predictions():
         has_prediction = False
 
         for match in matchs:
+            if not match_is_open(match):
+                continue
+
             score1 = request.form.get(f"score1_{match.id}")
             score2 = request.form.get(f"score2_{match.id}")
 
@@ -2321,6 +2360,9 @@ def private_group_predictions(code):
             return redirect(f"/groupe/{group.code}/predictions?week={selected_week}")
 
         for match in matchs:
+            if not match_is_open(match):
+                continue
+
             score1 = request.form.get(f"score1_{match.id}")
             score2 = request.form.get(f"score2_{match.id}")
 
@@ -2857,6 +2899,22 @@ def sitemap():
 </urlset>
 """
     return Response(xml, mimetype="application/xml")
+
+
+@app.route("/robots.txt")
+def robots():
+
+    robots_txt = """
+User-agent: *
+Allow: /
+
+Sitemap: https://fozifoot.com/sitemap.xml
+"""
+
+    return Response(
+        robots_txt,
+        mimetype="text/plain"
+    )
 
 
 if __name__ == "__main__":
