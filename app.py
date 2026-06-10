@@ -14,8 +14,10 @@ from flask import (
     redirect,
     session,
     url_for,
-    send_file
+    send_file,
+    Response
 )
+
 from flask_babel import Babel, gettext as _
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -2781,8 +2783,6 @@ def admin_tickets():
         search=search,
         active_page="admin_tickets"
     )
-
-from flask import Response
 
 @app.route("/sitemap.xml")
 def sitemap():
