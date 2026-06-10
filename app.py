@@ -2465,6 +2465,18 @@ def forgot_password():
 
     return render_template("forgot_password.html")
 
+@app.route("/admin/users")
+@admin_required
+def admin_users():
+    users = Visitor.query.all()
+
+    result = "<h1>Utilisateurs enregistrés</h1>"
+
+    for user in users:
+        result += f"<p>{user.id} - {user.full_name} - {user.email}</p>"
+
+    return result
+
 
 @app.route("/verify-reset-code", methods=["GET", "POST"])
 def verify_reset_code():
