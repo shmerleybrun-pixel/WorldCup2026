@@ -1,23 +1,30 @@
 import os
-from flask import Flask, render_template, request, redirect, session
+import random
+import string
+import smtplib
 from datetime import timedelta, date, datetime
+from functools import wraps
+from io import BytesIO
+from email.message import EmailMessage
+
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    session,
+    url_for,
+    send_file
+)
+from flask_babel import Babel, gettext as _
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from functools import wraps
-from flask import session, redirect
-from flask_babel import Babel, gettext as _
-from flask import session, redirect, request, url_for
-
-from io import BytesIO
-
-from flask import send_file
 
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
     Spacer
 )
-
 from reportlab.lib.styles import getSampleStyleSheet
 
 MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.titan.email")
@@ -27,17 +34,12 @@ MAIL_USE_TLS = False
 MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "custpriority@fozifoot.com")
 MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
 
-import random
-import string
-import smtplib
-from email.message import EmailMessage
-
 app = Flask(__name__)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///worldcup.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-app.secret_key = "worldcup2026_secret"
+app.secret_key = os.environ.get("SECRET_KEY", "worldcup2026_secret")
 app.permanent_session_lifetime = timedelta(days=30)
 
 app.config["BABEL_DEFAULT_LOCALE"] = "fr"
@@ -485,7 +487,6 @@ def home():
     
     live_video = LiveVideo.query.filter_by(is_active=True).first()
     news = News.query.order_by(News.id.desc()).limit(3).all()
-    pronostiqueurs_count = db.session.query(Prediction.visitor_id).distinct().count()
 
     return render_template(
         "index.html",
@@ -498,16 +499,13 @@ def home():
         meilleur_passeur=meilleur_passeur,
         news=news,
         live_video=live_video,
-        pronostiqueurs_count=pronostiqueurs_count,
         active_page="home"
     )
 
 
 @app.route("/count")
 def count():
-    return str(Match.query.count()
-
-)
+    return str(Match.query.count())
 
 
 @app.route("/groups")
@@ -1910,7 +1908,8 @@ def admin_dashboard():
         total_predictions=total_predictions,
         total_groups=total_groups,
         total_matches=total_matches,
-        matches_played=matches_played
+        matches_played=matches_played,
+        active_page="admin_dashboard"
     )
 
 @app.route("/pronostics")
@@ -2682,7 +2681,7 @@ def sponsor():
     return render_template("sponsor.html", active_page="sponsor")
 
 
-def send_sponsor_email(subject, body):
+def send_sponsor_email(subject, body, reply_to=None):
     sender_email = os.environ.get("MAIL_USERNAME", MAIL_USERNAME)
     sender_password = os.environ.get("MAIL_PASSWORD", MAIL_PASSWORD)
     mail_server = os.environ.get("MAIL_SERVER", MAIL_SERVER)
@@ -2696,7 +2695,10 @@ def send_sponsor_email(subject, body):
     message["Subject"] = subject
     message["From"] = sender_email
     message["To"] = "custpriority@fozifoot.com"
-    message["Reply-To"] = sender_email
+
+    if reply_to:
+        message["Reply-To"] = reply_to
+
     message.set_content(body)
 
     try:
@@ -2743,7 +2745,7 @@ Message :
 {message}
 """
 
-    email_sent = send_sponsor_email(subject, body)
+    email_sent = send_sponsor_email(subject, body, reply_to=email)
 
     if email_sent:
         return redirect("/sponsor?success=1")
