@@ -2453,14 +2453,14 @@ def forgot_password():
             if not email_sent:
                 return render_template(
                     "forgot_password.html",
-                    error="Impossible d'envoyer le code. Vérifie le mot de passe application Gmail."
+                    error="Impossible d'envoyer le code. Vérifie la configuration email."
                 )
 
             return redirect("/verify-reset-code")
 
         return render_template(
             "forgot_password.html",
-            error="Aucun compte trouvé avec cet email."
+            error=f"Aucun compte trouvé avec cet email : {email}"
         )
 
     return render_template("forgot_password.html")
