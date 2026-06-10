@@ -2428,9 +2428,11 @@ def private_group_predictions(code):
 def forgot_password():
 
     if request.method == "POST":
-        email = request.form.get("email")
+        email = request.form.get("email", "").strip().lower()
 
-        visitor = Visitor.query.filter_by(email=email).first()
+        visitor = Visitor.query.filter(
+            db.func.lower(Visitor.email) == email
+        ).first()
 
         if visitor:
             code = str(random.randint(100000, 999999))
