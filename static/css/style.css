@@ -1219,3 +1219,11 @@ font-size: 28px;
         margin-right: 0 !important;
     }
 }
+
+.login-mascot-left {
+    margin-left: -20px !important;
+}
+
+.login-mascot-right {
+    margin-right: -20px !important;
+}
