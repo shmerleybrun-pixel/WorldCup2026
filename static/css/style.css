@@ -94,7 +94,11 @@ transform: scale(1.15);
 
 /* TITRES */
 
-h1, h2, h3, h4, h5 {
+h1,
+h2,
+h3,
+h4,
+h5 {
 font-weight: 800;
 }
 
@@ -386,14 +390,6 @@ height: 32px;
 object-fit: cover;
 border-radius: 6px;
 border: 1px solid #ddd;
-}
-
-.small-flag {
-width: 28px;
-height: auto;
-border-radius: 4px;
-margin-right: 6px;
-box-shadow: 0 2px 6px rgba(0,0,0,.15);
 }
 
 /* SCORES */
@@ -919,12 +915,63 @@ outline: none !important;
 text-decoration: none;
 }
 
+/* LOGIN PAGE FOZI MASCOTS */
+
+.login-page-wrapper {
+min-height: calc(100vh - 120px);
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.login-layout-row {
+width: 100%;
+align-items: center;
+justify-content: center;
+}
+
+.login-side-mascot {
+width: 350px !important;
+max-width: 350px !important;
+height: auto !important;
+object-fit: contain;
+filter: drop-shadow(0 14px 24px rgba(0,0,0,0.35));
+transition: all 0.3s ease;
+cursor: pointer;
+}
+
+.login-side-mascot:hover {
+transform: scale(1.06);
+filter: drop-shadow(0 0 18px rgba(255, 215, 0, 0.85));
+}
+
+.login-mascot-left {
+margin-left: -10px !important;
+}
+
+.login-mascot-right {
+margin-right: -10px !important;
+}
+
+.login-mascot-right a {
+display: inline-block;
+text-decoration: none;
+}
+
+.login-card {
+border-radius: 22px !important;
+overflow: hidden;
+position: relative;
+z-index: 3;
+}
+
 /* TABLETTES */
 
 @media (max-width: 991px) {
 .navbar-brand-area {
 min-width: auto;
 }
+
 
 .hero-box {
     min-height: auto;
@@ -972,6 +1019,25 @@ min-width: auto;
     grid-template-columns: repeat(4, 1fr);
 }
 
+.login-page-wrapper {
+    min-height: auto;
+    padding-top: 25px;
+    padding-bottom: 25px;
+}
+
+.login-side-mascot {
+    width: 220px !important;
+    max-width: 220px !important;
+    margin-bottom: 15px;
+}
+
+.login-mascot-left,
+.login-mascot-right {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+
 }
 
 /* MOBILE */
@@ -980,6 +1046,7 @@ min-width: auto;
 body {
 overflow-x: hidden;
 }
+
 
 .container,
 .container-fluid {
@@ -1103,6 +1170,7 @@ footer {
     padding: 10px;
 }
 
+
 }
 
 /* PETITS MOBILES */
@@ -1111,6 +1179,7 @@ footer {
 .hero-title {
 font-size: 28px;
 }
+
 
 .hero-cup-large,
 .hero-ball-large {
@@ -1131,99 +1200,10 @@ font-size: 28px;
     max-height: 82vh;
 }
 
-}
-
-/* LOGIN PAGE FOZI MASCOTS */
-
-.login-page-wrapper {
-    min-height: calc(100vh - 120px);
-    display: flex;
-    align-items: center;
-}
-
 .login-side-mascot {
-    max-width: 300px;
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-    filter: drop-shadow(0 14px 24px rgba(0,0,0,0.35));
-    transition: all 0.3s ease;
+    width: 170px !important;
+    max-width: 170px !important;
 }
 
-.login-side-mascot:hover {
-    transform: scale(1.05);
-}
 
-.login-card {
-    border-radius: 22px !important;
-    overflow: hidden;
-}
-
-/* Mobile */
-@media (max-width: 991px) {
-    .login-page-wrapper {
-        min-height: auto;
-    }
-
-    .login-side-mascot {
-        display: none;
-    }
-}
-.login-side-mascot {
-    width: 450px !important;
-    max-width: 450px !important;
-}
-
-.login-mascot-left {
-    margin-left: -120px !important;
-}
-
-.login-mascot-right {
-    margin-right: -120px !important;
-}
-
-/* LOGIN PAGE MASCOTS */
-
-.login-side-mascot {
-    width: 380px !important;
-    max-width: 380px !important;
-    height: auto !important;
-}
-
-.login-mascot-left {
-    margin-left: -50px !important;
-}
-
-.login-mascot-right {
-    margin-right: -50px !important;
-}
-
-.login-mascot-right img {
-    cursor: pointer !important;
-}
-
-.login-side-mascot:hover {
-    transform: scale(1.08);
-}
-
-@media (max-width: 991px) {
-
-    .login-side-mascot {
-        width: 220px !important;
-        max-width: 220px !important;
-    }
-
-    .login-mascot-left,
-    .login-mascot-right {
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-    }
-}
-
-.login-mascot-left {
-    margin-left: -20px !important;
-}
-
-.login-mascot-right {
-    margin-right: -20px !important;
 }
