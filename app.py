@@ -2782,6 +2782,81 @@ def admin_tickets():
         active_page="admin_tickets"
     )
 
+from flask import Response
+
+@app.route("/sitemap.xml")
+def sitemap():
+
+xml = """<?xml version="1.0" encoding="UTF-8"?>
+
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+<url>
+<loc>https://fozifoot.com/</loc>
+<priority>1.0</priority>
+</url>
+
+<url>
+<loc>https://fozifoot.com/matches</loc>
+<priority>0.9</priority>
+</url>
+
+<url>
+<loc>https://fozifoot.com/groups</loc>
+<priority>0.9</priority>
+</url>
+
+<url>
+<loc>https://fozifoot.com/standings</loc>
+<priority>0.9</priority>
+</url>
+
+<url>
+<loc>https://fozifoot.com/statistiques</loc>
+<priority>0.8</priority>
+</url>
+
+<url>
+<loc>https://fozifoot.com/knockout</loc>
+<priority>0.8</priority>
+</url>
+
+<url>
+<loc>https://fozifoot.com/buteurs</loc>
+<priority>0.8</priority>
+</url>
+
+<url>
+<loc>https://fozifoot.com/passeurs</loc>
+<priority>0.8</priority>
+</url>
+
+<url>
+<loc>https://fozifoot.com/equipes</loc>
+<priority>0.8</priority>
+</url>
+
+<url>
+<loc>https://fozifoot.com/stadiums</loc>
+<priority>0.8</priority>
+</url>
+
+<url>
+<loc>https://fozifoot.com/login</loc>
+<priority>0.6</priority>
+</url>
+
+<url>
+<loc>https://fozifoot.com/register</loc>
+<priority>0.6</priority>
+</url>
+
+</urlset>
+"""
+
+return Response(xml, mimetype="application/xml")
+
+
 
 if __name__ == "__main__":
 
