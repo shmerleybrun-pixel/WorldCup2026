@@ -4006,16 +4006,16 @@ def debug_users():
     {"".join([f"{u.id} - {u.full_name} - {u.email}<br>" for u in users])}
     """
 
-@app.route("/admin/test-worldcup-api")
+@app.route("/admin/sync-fifa")
 @admin_required
-def test_worldcup_api():
+def admin_sync_fifa():
     api_key = os.environ.get("FOOTBALL_API_KEY")
 
-    url = "https://v3.football.api-sports.io/fixtures"
+    if not api_key:
+        return "FOOTBALL_API_KEY manquant dans Render", 500
 
-    headers = {
-        "x-apisports-key": api_key
-    }
+    url = "https://v3.football.api-sports.io/fixtures"
+    headers = {"x-apisports-key": api_key}
 
     params = {
         "league": 1,
@@ -4023,8 +4023,37 @@ def test_worldcup_api():
     }
 
     response = requests.get(url, headers=headers, params=params, timeout=20)
+    data = response.json()
 
-    return response.text
+    updated = 0
+
+    for item in data.get("response", []):
+        fixture = item.get("fixture", {})
+        teams = item.get("teams", {})
+        goals = item.get("goals", {})
+
+        home = teams.get("home", {}).get("name")
+        away = teams.get("away", {}).get("name")
+
+        score1 = goals.get("home")
+        score2 = goals.get("away")
+
+        if home is None or away is None:
+            continue
+
+        match = Match.query.filter_by(
+            team1=home,
+            team2=away
+        ).first()
+
+        if match and score1 is not None and score2 is not None:
+            match.score1 = score1
+            match.score2 = score2
+            updated += 1
+
+    db.session.commit()
+
+    return f"Sync FIFA terminée. Matchs mis à jour : {updated}"
 
 
 if __name__ == "__main__":
