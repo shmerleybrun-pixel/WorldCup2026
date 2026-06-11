@@ -176,24 +176,7 @@
 
             {% elif session.get("role") == "admin" %}
 
-                <li class="nav-item">
-                    <a class="nav-link {% if active_page == 'predictions' %}active{% endif %}" href="/predictions">
-                        Prédictions
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link {% if active_page == 'classement_pronos' %}active{% endif %}" href="/classement-pronos">
-                        Classement Pronos
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link text-warning fw-bold {% if active_page == 'admin_dashboard' %}active{% endif %}" href="/admin/dashboard">
-                        Dashboard
-                    </a>
-                </li>
-
+              
                 <li class="nav-item">
                     <a class="nav-link text-warning fw-bold {% if active_page == 'admin_matchs' %}active{% endif %}" href="/admin/matchs">
                         Admin Matchs
