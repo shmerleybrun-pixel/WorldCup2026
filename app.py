@@ -4261,18 +4261,24 @@ def admin_sync_fifa():
 @app.route("/admin/test-worldcup-api")
 @admin_required
 def test_worldcup_api():
-    """Test brut API-Football pour vérifier la clé et les matchs World Cup 2026."""
-    if not os.environ.get("FOOTBALL_API_KEY"):
+    api_key = os.environ.get("FOOTBALL_API_KEY")
+
+    if not api_key:
         return "FOOTBALL_API_KEY manquant dans Render", 500
 
-    today_db = date.today().isoformat()
-    data = fetch_api_football_fixtures({
-        "league": 1,
-        "season": 2026,
-        "date": today_db,
-    })
+    url = "https://v3.football.api-sports.io/fixtures"
 
-    return data
+    headers = {
+        "x-apisports-key": api_key
+    }
+
+    params = {
+        "date": date.today().isoformat()
+    }
+
+    response = requests.get(url, headers=headers, params=params, timeout=20)
+
+    return response.text
 
 
 if __name__ == "__main__":
