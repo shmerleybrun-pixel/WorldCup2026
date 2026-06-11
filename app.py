@@ -4006,23 +4006,26 @@ def debug_users():
     {"".join([f"{u.id} - {u.full_name} - {u.email}<br>" for u in users])}
     """
 
-@app.route("/admin/test-api")
+@app.route("/admin/test-worldcup-api")
 @admin_required
-def test_api():
+def test_worldcup_api():
     api_key = os.environ.get("FOOTBALL_API_KEY")
 
-    if not api_key:
-        return "FOOTBALL_API_KEY manquant dans Render", 500
-
-    url = "https://v3.football.api-sports.io/fixtures?live=all"
+    url = "https://v3.football.api-sports.io/fixtures"
 
     headers = {
         "x-apisports-key": api_key
     }
 
-    response = requests.get(url, headers=headers, timeout=20)
+    params = {
+        "league": 1,
+        "season": 2026
+    }
+
+    response = requests.get(url, headers=headers, params=params, timeout=20)
 
     return response.text
+
 
 if __name__ == "__main__":
 
