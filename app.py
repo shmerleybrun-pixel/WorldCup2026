@@ -36,8 +36,7 @@ MAIL_PORT = int(os.environ.get("MAIL_PORT", "465"))
 MAIL_USE_SSL = True
 MAIL_USE_TLS = False
 MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "custpriority@fozifoot.com")
-MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD"),"FanFanBrun1990")
-MATCH_TIMEZONE = os.environ.get("MATCH_TIMEZONE", "America/New_York")
+MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
 
 app = Flask(__name__)
 
