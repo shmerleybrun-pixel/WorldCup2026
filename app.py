@@ -58,6 +58,13 @@ app.permanent_session_lifetime = timedelta(days=30)
 app.config["BABEL_DEFAULT_LOCALE"] = "fr"
 app.config["BABEL_SUPPORTED_LOCALES"] = ["fr", "en", "es"]
 
+def get_locale():
+    return session.get("lang", "fr")
+
+babel = Babel(app, locale_selector=get_locale)
+
+db = SQLAlchemy(app)
+
 
 COUNTRY_CODES = {
     "Mexico": "mx",
