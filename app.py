@@ -2969,13 +2969,12 @@ def debug_users():
 
     users = Visitor.query.all()
 
-    result = ""
-
-    for u in users:
-        result += f"{u.id} - {u.full_name} - {u.email}<br>"
-
-    return result
-
+    return f"""
+    <h1>Debug Users</h1>
+    <p>Total utilisateurs : {len(users)}</p>
+    <hr>
+    {"".join([f"{u.id} - {u.full_name} - {u.email}<br>" for u in users])}
+    """
 
 if __name__ == "__main__":
 
