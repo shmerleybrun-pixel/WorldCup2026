@@ -41,10 +41,15 @@ MATCH_TIMEZONE = os.environ.get("MATCH_TIMEZONE", "America/New_York")
 
 app = Flask(__name__)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+database_url = os.environ.get(
     "DATABASE_URL",
     "sqlite:///worldcup.db"
 )
+
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 app.secret_key = os.environ.get("SECRET_KEY", "worldcup2026_secret")
@@ -52,13 +57,6 @@ app.permanent_session_lifetime = timedelta(days=30)
 
 app.config["BABEL_DEFAULT_LOCALE"] = "fr"
 app.config["BABEL_SUPPORTED_LOCALES"] = ["fr", "en", "es"]
-
-def get_locale():
-    return session.get("lang", "fr")
-
-babel = Babel(app, locale_selector=get_locale)
-
-db = SQLAlchemy(app)
 
 
 COUNTRY_CODES = {
