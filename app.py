@@ -41,7 +41,10 @@ MATCH_TIMEZONE = os.environ.get("MATCH_TIMEZONE", "America/New_York")
 
 app = Flask(__name__)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///worldcup.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+    "DATABASE_URL",
+    "sqlite:///worldcup.db"
+)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 app.secret_key = os.environ.get("SECRET_KEY", "worldcup2026_secret")
