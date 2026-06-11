@@ -1,23 +1,18 @@
-# FoziFoot upgrade package
+FoziFoot - Animation de but en direct
 
-Contenu :
-- app.py : fichier Flask complet corrigé
-- templates/admin_users.html : nouvelle page admin utilisateurs
+Fichiers inclus :
+- app.py : ajoute /api/today-matches + correction MATCH_TIMEZONE si nécessaire.
+- index.html : ajoute détection de nouveau but, animation GOOOAL, son léger et mise à jour automatique du score.
 
-À copier dans le projet :
-1. Remplace l'ancien app.py par ce app.py
-2. Copie templates/admin_users.html dans ton dossier templates/
-3. Fais :
+Installation :
+1. Remplacer app.py à la racine du projet.
+2. Remplacer templates/index.html par index.html.
+3. Commit/push :
    git add .
-   git commit -m "Add FoziFoot admin users and security upgrades"
+   git commit -m "Add live goal alert on home page"
    git push
-4. Render redéploiera automatiquement.
 
-Routes ajoutées/améliorées :
-- /admin/users
-- /admin/users/export.csv
-- /admin/users/delete/<id>
-- Email HTML professionnel pour les codes de récupération
-- Protection anti-spam reset password
-- Force HTTPS sur Render
-- Avertissement SECRET_KEY si valeur par défaut
+Fonctionnement :
+- La page d'accueil appelle /api/today-matches toutes les 15 secondes.
+- Si un score augmente, elle affiche une animation GOOOAL et met le match en surbrillance.
+- Les scores doivent être mis à jour dans PostgreSQL par l'admin ou par ta synchronisation API-Football.

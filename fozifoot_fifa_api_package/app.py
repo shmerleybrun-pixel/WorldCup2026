@@ -2,6 +2,12 @@ import os
 import random
 import string
 import smtplib
+import json
+import re
+import unicodedata
+import urllib.parse
+import urllib.request
+import urllib.error
 from datetime import timedelta, date, datetime
 from functools import wraps
 from io import BytesIO
@@ -38,8 +44,6 @@ MAIL_USE_TLS = os.environ.get("MAIL_USE_TLS", "true").lower() == "true"
 MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "custpriority@fozifoot.com")
 MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
 
-MATCH_TIMEZONE = os.environ.get("MATCH_TIMEZONE", "America/New_York")
-
 app = Flask(__name__)
 
 database_url = os.environ.get(
@@ -54,8 +58,6 @@ app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 app.secret_key = os.environ.get("SECRET_KEY", "worldcup2026_secret")
-if app.secret_key == "worldcup2026_secret" and os.environ.get("RENDER") == "true":
-    print("AVERTISSEMENT SÉCURITÉ : configure SECRET_KEY dans Render.")
 app.permanent_session_lifetime = timedelta(days=30)
 
 app.config["BABEL_DEFAULT_LOCALE"] = "fr"
@@ -67,74 +69,6 @@ def get_locale():
 babel = Babel(app, locale_selector=get_locale)
 
 db = SQLAlchemy(app)
-
-# =====================================================
-# SÉCURITÉ PRODUCTION
-# =====================================================
-@app.before_request
-def enforce_https_on_render():
-    """
-    Force HTTPS en production sur Render, sans bloquer le développement local.
-    Render envoie X-Forwarded-Proto pour indiquer le protocole réel.
-    """
-    if os.environ.get("RENDER") == "true":
-        forwarded_proto = request.headers.get("X-Forwarded-Proto", "https")
-        if forwarded_proto == "http":
-            return redirect(request.url.replace("http://", "https://", 1), code=301)
-
-
-def parse_datetime_safe(value):
-    """Convertit une date stockée en texte vers datetime, sans casser l'app."""
-    if not value:
-        return None
-
-    for fmt in ("%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S"):
-        try:
-            return datetime.strptime(value, fmt)
-        except ValueError:
-            pass
-
-    try:
-        return datetime.fromisoformat(value)
-    except Exception:
-        return None
-
-
-def reset_email_rate_limited(visitor_id, max_attempts=3, minutes=15):
-    """
-    Protection anti-spam : limite les demandes de codes de récupération.
-    Par défaut : 3 codes maximum par 15 minutes pour un même compte.
-    """
-    recent_codes = PasswordResetCode.query.filter_by(
-        visitor_id=visitor_id
-    ).order_by(
-        PasswordResetCode.id.desc()
-    ).limit(10).all()
-
-    now = datetime.now()
-    attempts = 0
-
-    for item in recent_codes:
-        created = parse_datetime_safe(item.created_at)
-        if created and now - created <= timedelta(minutes=minutes):
-            attempts += 1
-
-    return attempts >= max_attempts
-
-
-def mask_email(email):
-    """Masque partiellement un email pour les affichages/logs."""
-    if not email or "@" not in email:
-        return email or ""
-
-    local, domain = email.split("@", 1)
-    if len(local) <= 2:
-        local_masked = local[0] + "*"
-    else:
-        local_masked = local[0] + "*" * (len(local) - 2) + local[-1]
-
-    return f"{local_masked}@{domain}"
-
 
 
 COUNTRY_CODES = {
@@ -1212,7 +1146,6 @@ def send_reset_email(to_email, code):
     - Port 587 utilise SMTP + STARTTLS.
     - Port 465 utilise SMTP_SSL.
     - Le mot de passe n'est jamais écrit dans les logs.
-    - Email HTML professionnel FoziFoot + version texte.
     - Si Titan refuse smtp.titan.email, le code essaie aussi le serveur GoDaddy/Titan.
     """
 
@@ -1228,77 +1161,21 @@ def send_reset_email(to_email, code):
     message["From"] = sender_email
     message["To"] = to_email
 
-    text_body = f"""
+    message.set_content(f"""
 Bonjour,
 
 Votre code de récupération FoziFoot est :
 
 {code}
 
-Ce code est personnel. Ne le partagez avec personne.
-
 Si vous n'avez pas demandé ce code, ignorez simplement cet email.
 
 FoziFoot
 Contact : custpriority@fozifoot.com
 WaZisTour LTD
-"""
+""")
 
-    html_body = f"""
-<!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FoziFoot - Code de récupération</title>
-</head>
-<body style="margin:0;padding:0;background:#f3f6fb;font-family:Arial,Helvetica,sans-serif;color:#162033;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3f6fb;padding:24px 0;">
-    <tr>
-      <td align="center">
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(20,35,70,.12);">
-          <tr>
-            <td style="background:linear-gradient(135deg,#051b45,#0b5cff);padding:28px 30px;text-align:center;">
-              <div style="font-size:30px;font-weight:800;color:#ffffff;letter-spacing:.3px;">FoziFoot</div>
-              <div style="font-size:14px;color:#dbe7ff;margin-top:6px;">World Cup 2026 Predictions</div>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:34px 30px;">
-              <h1 style="margin:0 0 14px;font-size:24px;color:#071a3d;">Code de récupération</h1>
-              <p style="margin:0 0 18px;font-size:16px;line-height:1.55;color:#33415c;">
-                Utilisez le code ci-dessous pour réinitialiser votre mot de passe FoziFoot.
-              </p>
-              <div style="margin:24px 0;text-align:center;">
-                <div style="display:inline-block;background:#f0f5ff;border:1px solid #c9dcff;border-radius:14px;padding:18px 30px;font-size:34px;font-weight:800;letter-spacing:8px;color:#0b5cff;">
-                  {code}
-                </div>
-              </div>
-              <p style="margin:0 0 12px;font-size:14px;line-height:1.5;color:#5b6780;">
-                Ce code est personnel. Ne le partagez avec personne.
-              </p>
-              <p style="margin:0;font-size:14px;line-height:1.5;color:#5b6780;">
-                Si vous n'avez pas demandé ce code, vous pouvez ignorer cet email.
-              </p>
-            </td>
-          </tr>
-          <tr>
-            <td style="background:#f8fafc;padding:20px 30px;text-align:center;border-top:1px solid #e8eef8;">
-              <div style="font-size:13px;color:#68758d;">FoziFoot • custpriority@fozifoot.com</div>
-              <div style="font-size:12px;color:#9aa6b8;margin-top:6px;">© WaZisTour LTD</div>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-"""
-
-    message.set_content(text_body)
-    message.add_alternative(html_body, subtype="html")
-
+    # Configuration prioritaire depuis Render
     primary_server = os.environ.get("MAIL_SERVER", MAIL_SERVER)
     primary_port = int(os.environ.get("MAIL_PORT", MAIL_PORT))
     primary_ssl = os.environ.get("MAIL_USE_SSL", str(MAIL_USE_SSL)).lower() == "true"
@@ -1342,6 +1219,7 @@ WaZisTour LTD
         },
     ]
 
+    # Certains fournisseurs acceptent l'adresse complète, d'autres seulement le nom local.
     usernames_to_try = [sender_email]
     if "@" in sender_email:
         usernames_to_try.append(sender_email.split("@")[0])
@@ -1396,7 +1274,7 @@ WaZisTour LTD
                         smtp.login(smtp_username, sender_password)
                         smtp.send_message(message)
 
-                print("EMAIL RESET ENVOYÉ AVEC SUCCÈS À :", mask_email(to_email))
+                print("EMAIL RESET ENVOYÉ AVEC SUCCÈS À :", to_email)
                 return True
 
             except Exception as e:
@@ -1406,9 +1284,7 @@ WaZisTour LTD
     print("ERREUR EMAIL COMPLETE : tous les essais SMTP ont échoué :", repr(last_error))
     return False
 
-
 @app.route("/")
-
 def home():
     today_db = date.today().isoformat()
 
@@ -1450,43 +1326,6 @@ def home():
 def count():
     return str(Match.query.count())
 
-
-
-
-@app.route("/api/today-matches")
-def api_today_matches():
-    """
-    Endpoint JSON pour la section Live Scores de la page d'accueil.
-    Le navigateur l'appelle régulièrement pour détecter un nouveau but.
-    """
-    today_db = date.today().isoformat()
-
-    matchs = Match.query.filter_by(
-        match_date=today_db
-    ).order_by(
-        Match.match_time,
-        Match.match_number
-    ).all()
-
-    return {
-        "date": today_db,
-        "updated_at": datetime.utcnow().isoformat() + "Z",
-        "matches": [
-            {
-                "id": match.id,
-                "match_number": match.match_number,
-                "group_name": match.group_name,
-                "team1": match.team1,
-                "team2": match.team2,
-                "score1": match.score1,
-                "score2": match.score2,
-                "match_time": match.match_time,
-                "stadium": match.stadium,
-                "city": match.city
-            }
-            for match in matchs
-        ]
-    }
 
 @app.route("/groups")
 def groups():
@@ -2314,6 +2153,279 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
+
+# =====================================================
+# SYNCHRONISATION API FOOTBALL / FIFA MATCHS
+# =====================================================
+
+def _normalize_team_for_api(name):
+    """Normalise les noms d'équipes pour faire correspondre l'API avec FoziFoot."""
+    if not name:
+        return ""
+
+    text = str(name).strip().lower()
+    text = unicodedata.normalize("NFKD", text)
+    text = "".join(ch for ch in text if not unicodedata.combining(ch))
+    text = re.sub(r"[^a-z0-9]+", " ", text).strip()
+
+    aliases = {
+        "usa": "united states",
+        "u s a": "united states",
+        "united states": "united states",
+        "usmnt": "united states",
+        "turkiye": "turkiye",
+        "turkey": "turkiye",
+        "czech republic": "czechia",
+        "czechia": "czechia",
+        "south korea": "korea republic",
+        "korea republic": "korea republic",
+        "ivory coast": "cote d ivoire",
+        "cote d ivoire": "cote d ivoire",
+        "cote divoire": "cote d ivoire",
+        "curacao": "curacao",
+        "curaçao": "curacao",
+        "iran": "ir iran",
+        "ir iran": "ir iran",
+        "dr congo": "congo dr",
+        "congo dr": "congo dr",
+        "democratic republic of congo": "congo dr",
+        "cape verde": "cabo verde",
+        "cabo verde": "cabo verde",
+    }
+
+    return aliases.get(text, text)
+
+
+def _find_match_from_api(home_team, away_team, match_date=None):
+    """Trouve un match FoziFoot correspondant à un match reçu depuis l'API."""
+    home_norm = _normalize_team_for_api(home_team)
+    away_norm = _normalize_team_for_api(away_team)
+
+    query = Match.query
+    if match_date:
+        query = query.filter_by(match_date=match_date)
+
+    candidates = query.all()
+
+    for match in candidates:
+        team1_norm = _normalize_team_for_api(match.team1)
+        team2_norm = _normalize_team_for_api(match.team2)
+
+        if team1_norm == home_norm and team2_norm == away_norm:
+            return match, False
+
+        if team1_norm == away_norm and team2_norm == home_norm:
+            return match, True
+
+    # Fallback : si la date API ne correspond pas exactement, on essaie sans date.
+    if match_date:
+        return _find_match_from_api(home_team, away_team, None)
+
+    return None, False
+
+
+def sync_fifa_matches_from_api():
+    """
+    Synchronise les scores FoziFoot depuis API-Football / API-Sports.
+
+    Variables Render recommandées :
+    FOOTBALL_API_KEY=ta_cle_api
+    FOOTBALL_API_PROVIDER=api-football
+    FOOTBALL_API_LEAGUE_ID=1
+    FOOTBALL_API_SEASON=2026
+    FOOTBALL_API_UPDATE_LIVE=false
+
+    Par sécurité, les scores live ne sont pas écrits sauf si FOOTBALL_API_UPDATE_LIVE=true.
+    """
+    provider = os.environ.get("FOOTBALL_API_PROVIDER", "api-football").strip().lower()
+    api_key = os.environ.get("FOOTBALL_API_KEY") or os.environ.get("APISPORTS_KEY")
+    league_id = os.environ.get("FOOTBALL_API_LEAGUE_ID", "1")
+    season = os.environ.get("FOOTBALL_API_SEASON", "2026")
+    update_live = os.environ.get("FOOTBALL_API_UPDATE_LIVE", "false").lower() == "true"
+
+    result = {
+        "provider": provider,
+        "league_id": league_id,
+        "season": season,
+        "received": 0,
+        "updated": 0,
+        "skipped": 0,
+        "errors": [],
+        "messages": [],
+    }
+
+    if provider not in ["api-football", "api_sports", "apisports"]:
+        result["errors"].append("Provider non supporté pour le moment. Utilise FOOTBALL_API_PROVIDER=api-football.")
+        return result
+
+    if not api_key:
+        result["errors"].append("FOOTBALL_API_KEY manquant dans Render Environment.")
+        return result
+
+    params = urllib.parse.urlencode({
+        "league": league_id,
+        "season": season,
+    })
+    api_url = f"https://v3.football.api-sports.io/fixtures?{params}"
+
+    request_obj = urllib.request.Request(
+        api_url,
+        headers={
+            "x-apisports-key": api_key,
+            "Accept": "application/json",
+        },
+        method="GET",
+    )
+
+    try:
+        with urllib.request.urlopen(request_obj, timeout=30) as response:
+            raw = response.read().decode("utf-8")
+            payload = json.loads(raw)
+    except urllib.error.HTTPError as exc:
+        result["errors"].append(f"Erreur HTTP API-Football : {exc.code} {exc.reason}")
+        return result
+    except Exception as exc:
+        result["errors"].append(f"Erreur connexion API-Football : {repr(exc)}")
+        return result
+
+    fixtures = payload.get("response", [])
+    result["received"] = len(fixtures)
+
+    if not fixtures:
+        result["messages"].append("Aucun match reçu. Vérifie FOOTBALL_API_LEAGUE_ID et FOOTBALL_API_SEASON.")
+        if payload.get("errors"):
+            result["errors"].append(f"Réponse API errors : {payload.get('errors')}")
+        return result
+
+    final_statuses = {"FT", "AET", "PEN"}
+    allowed_live_statuses = {"1H", "HT", "2H", "ET", "BT", "P", "SUSP", "INT", "LIVE"}
+
+    for item in fixtures:
+        fixture = item.get("fixture", {})
+        status = fixture.get("status", {}) or {}
+        status_short = status.get("short")
+        fixture_date = fixture.get("date", "")[:10] if fixture.get("date") else None
+
+        if status_short not in final_statuses:
+            if not (update_live and status_short in allowed_live_statuses):
+                result["skipped"] += 1
+                continue
+
+        teams = item.get("teams", {})
+        home_team = (teams.get("home") or {}).get("name")
+        away_team = (teams.get("away") or {}).get("name")
+        goals = item.get("goals", {}) or {}
+        home_goals = goals.get("home")
+        away_goals = goals.get("away")
+
+        if home_goals is None or away_goals is None:
+            result["skipped"] += 1
+            continue
+
+        match, reversed_order = _find_match_from_api(home_team, away_team, fixture_date)
+
+        if match is None:
+            result["skipped"] += 1
+            result["messages"].append(f"Non trouvé dans FoziFoot : {home_team} vs {away_team} ({fixture_date})")
+            continue
+
+        if reversed_order:
+            match.score1 = int(away_goals)
+            match.score2 = int(home_goals)
+        else:
+            match.score1 = int(home_goals)
+            match.score2 = int(away_goals)
+
+        result["updated"] += 1
+
+    db.session.commit()
+    result["messages"].append(f"Synchronisation terminée : {result['updated']} match(s) mis à jour.")
+    return result
+
+
+@app.route("/admin/sync-fifa", methods=["GET", "POST"])
+@admin_required
+def admin_sync_fifa():
+    sync_result = None
+
+    if request.method == "POST":
+        sync_result = sync_fifa_matches_from_api()
+
+    api_key_status = "Configurée" if (os.environ.get("FOOTBALL_API_KEY") or os.environ.get("APISPORTS_KEY")) else "Manquante"
+    provider = os.environ.get("FOOTBALL_API_PROVIDER", "api-football")
+    league_id = os.environ.get("FOOTBALL_API_LEAGUE_ID", "1")
+    season = os.environ.get("FOOTBALL_API_SEASON", "2026")
+
+    html = f"""
+    <!doctype html>
+    <html lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>FoziFoot - Sync FIFA API</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-dark text-light">
+        <div class="container py-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="text-warning">Synchronisation FIFA API</h1>
+                    <p class="text-secondary mb-0">Mise à jour des scores FoziFoot depuis l'API football.</p>
+                </div>
+                <a href="/admin/matchs" class="btn btn-outline-light">Retour admin matchs</a>
+            </div>
+
+            <div class="card bg-black border-warning mb-4">
+                <div class="card-body">
+                    <h5 class="text-warning">Configuration Render</h5>
+                    <p class="mb-1"><strong>FOOTBALL_API_KEY :</strong> {api_key_status}</p>
+                    <p class="mb-1"><strong>FOOTBALL_API_PROVIDER :</strong> {provider}</p>
+                    <p class="mb-1"><strong>FOOTBALL_API_LEAGUE_ID :</strong> {league_id}</p>
+                    <p class="mb-0"><strong>FOOTBALL_API_SEASON :</strong> {season}</p>
+                </div>
+            </div>
+
+            <form method="POST" class="mb-4">
+                <button class="btn btn-warning btn-lg fw-bold" type="submit">
+                    Synchroniser les scores maintenant
+                </button>
+            </form>
+    """
+
+    if sync_result:
+        badge_class = "success" if not sync_result.get("errors") else "danger"
+        html += f"""
+            <div class="alert alert-{badge_class}">
+                <h4>Résultat</h4>
+                <p><strong>Matchs reçus :</strong> {sync_result.get('received')}</p>
+                <p><strong>Matchs mis à jour :</strong> {sync_result.get('updated')}</p>
+                <p><strong>Ignorés :</strong> {sync_result.get('skipped')}</p>
+            </div>
+        """
+
+        if sync_result.get("errors"):
+            html += "<div class='card bg-black border-danger mb-3'><div class='card-body'><h5 class='text-danger'>Erreurs</h5><ul>"
+            for error in sync_result.get("errors", []):
+                html += f"<li>{error}</li>"
+            html += "</ul></div></div>"
+
+        if sync_result.get("messages"):
+            html += "<div class='card bg-black border-info'><div class='card-body'><h5 class='text-info'>Messages</h5><ul>"
+            for msg in sync_result.get("messages", [])[:50]:
+                html += f"<li>{msg}</li>"
+            html += "</ul></div></div>"
+
+    html += """
+            <div class="mt-5 text-secondary small">
+                Variables à ajouter dans Render : FOOTBALL_API_KEY, FOOTBALL_API_PROVIDER=api-football, FOOTBALL_API_LEAGUE_ID=1, FOOTBALL_API_SEASON=2026.
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    return html
 
 # =====================================================
 # CONNEXION UNIQUE ADMIN + VISITEUR
@@ -3375,116 +3487,30 @@ def private_group_predictions(code):
 @app.route("/admin/users")
 @admin_required
 def admin_users():
-    search = request.args.get("q", "").strip()
-
-    query = Visitor.query
-
-    if search:
-        like = f"%{search.lower()}%"
-        query = query.filter(
-            db.or_(
-                db.func.lower(Visitor.full_name).like(like),
-                db.func.lower(Visitor.email).like(like)
-            )
-        )
-
-    users = query.order_by(Visitor.id.desc()).all()
-
-    user_rows = []
-
-    for user in users:
-        predictions_count = Prediction.query.filter_by(
-            visitor_id=user.id
-        ).count()
-
-        receipts_count = PredictionReceipt.query.filter_by(
-            visitor_id=user.id
-        ).count()
-
-        groups_count = PrivateGroupMember.query.filter_by(
-            visitor_id=user.id
-        ).count()
-
-        total_points = 0
-
-        predictions = Prediction.query.filter_by(
-            visitor_id=user.id,
-            prediction_type="public"
-        ).all()
-
-        for prediction in predictions:
-            total_points += prediction_points(prediction)
-
-        user_rows.append({
-            "user": user,
-            "predictions_count": predictions_count,
-            "receipts_count": receipts_count,
-            "groups_count": groups_count,
-            "total_points": total_points
-        })
-
-    return render_template(
-        "admin_users.html",
-        users=user_rows,
-        search=search,
-        total_users=Visitor.query.count(),
-        active_page="admin_users"
-    )
-
-
-@app.route("/admin/users/delete/<int:user_id>", methods=["POST"])
-@admin_required
-def admin_delete_user(user_id):
-    user = Visitor.query.get_or_404(user_id)
-
-    Prediction.query.filter_by(visitor_id=user.id).delete()
-    PredictionReceipt.query.filter_by(visitor_id=user.id).delete()
-    PasswordResetCode.query.filter_by(visitor_id=user.id).delete()
-    PrivateGroupMember.query.filter_by(visitor_id=user.id).delete()
-
-    groups_created = PrivateGroup.query.filter_by(creator_id=user.id).all()
-
-    for group in groups_created:
-        PrivateGroupMember.query.filter_by(group_id=group.id).delete()
-        Prediction.query.filter_by(private_group_id=group.id).delete()
-        db.session.delete(group)
-
-    db.session.delete(user)
-    db.session.commit()
-
-    return redirect("/admin/users")
-
-
-@app.route("/admin/users/export.csv")
-@admin_required
-def admin_users_export_csv():
     users = Visitor.query.order_by(Visitor.id.desc()).all()
 
-    rows = ["id,full_name,email,predictions,receipts,private_groups,total_points"]
+    result = """
+    <h1>Utilisateurs enregistrés</h1>
+    <table border="1" cellpadding="8" cellspacing="0">
+        <tr>
+            <th>ID</th>
+            <th>Nom complet</th>
+            <th>Email</th>
+        </tr>
+    """
 
     for user in users:
-        predictions = Prediction.query.filter_by(visitor_id=user.id).all()
-        predictions_count = len(predictions)
-        receipts_count = PredictionReceipt.query.filter_by(visitor_id=user.id).count()
-        groups_count = PrivateGroupMember.query.filter_by(visitor_id=user.id).count()
-        total_points = sum(prediction_points(p) for p in predictions)
+        result += f"""
+        <tr>
+            <td>{user.id}</td>
+            <td>{user.full_name}</td>
+            <td>{user.email}</td>
+        </tr>
+        """
 
-        full_name = (user.full_name or "").replace('"', '""')
-        email = (user.email or "").replace('"', '""')
+    result += "</table>"
 
-        rows.append(
-            f'{user.id},"{full_name}","{email}",{predictions_count},{receipts_count},{groups_count},{total_points}'
-        )
-
-    csv_content = "\n".join(rows)
-
-    return Response(
-        csv_content,
-        mimetype="text/csv",
-        headers={
-            "Content-Disposition": "attachment; filename=fozifoot_users.csv"
-        }
-    )
+    return result
 
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
@@ -3503,12 +3529,6 @@ def forgot_password():
         ).first()
 
         if visitor:
-            if reset_email_rate_limited(visitor.id):
-                return render_template(
-                    "forgot_password.html",
-                    error="Trop de demandes de code. Veuillez réessayer dans quelques minutes."
-                )
-
             code = str(random.randint(100000, 999999))
 
             reset_code = PasswordResetCode(
@@ -3532,10 +3552,9 @@ def forgot_password():
 
             return redirect("/verify-reset-code")
 
-        # Message générique pour éviter d'exposer les emails inscrits.
         return render_template(
             "forgot_password.html",
-            error="Si un compte existe avec cet email, un code sera envoyé."
+            error=f"Aucun compte trouvé avec cet email : {email}"
         )
 
     return render_template("forgot_password.html")
