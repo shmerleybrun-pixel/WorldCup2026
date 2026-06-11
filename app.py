@@ -2,12 +2,15 @@ import os
 import random
 import string
 import smtplib
+import requests
 from datetime import timedelta, date, datetime
 from functools import wraps
 from io import BytesIO
 from email.message import EmailMessage
 
 from zoneinfo import ZoneInfo
+
+FOOTBALL_API_KEY = os.getenv("FOOTBALL_API_KEY")
 
 from flask import (
     Flask,
@@ -4002,6 +4005,21 @@ def debug_users():
     <hr>
     {"".join([f"{u.id} - {u.full_name} - {u.email}<br>" for u in users])}
     """
+
+@app.route("/admin/test-api")
+@admin_required
+def test_api():
+
+    url = "https://v3.football.api-sports.io/fixtures?live=all"
+
+    headers = {
+        "x-apisports-key": FOOTBALL_API_KEY
+    }
+
+    r = requests.get(url, headers=headers)
+
+    return r.text
+
 
 if __name__ == "__main__":
 
