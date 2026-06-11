@@ -32,9 +32,9 @@ from reportlab.platypus import (
 from reportlab.lib.styles import getSampleStyleSheet
 
 MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.titan.email")
-MAIL_PORT = int(os.environ.get("MAIL_PORT", "465"))
-MAIL_USE_SSL = True
-MAIL_USE_TLS = False
+MAIL_PORT = int(os.environ.get("MAIL_PORT", "587"))
+MAIL_USE_SSL = os.environ.get("MAIL_USE_SSL", "false").lower() == "true"
+MAIL_USE_TLS = os.environ.get("MAIL_USE_TLS", "true").lower() == "true"
 MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "custpriority@fozifoot.com")
 MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
 
@@ -1133,44 +1133,69 @@ def generate_group_code():
             return code
 
 def send_reset_email(to_email, code):
+    """
+    Envoie le code de récupération.
+
+    Configuration recommandée Render / Titan SMTP :
+    MAIL_SERVER=smtp.titan.email
+    MAIL_PORT=587
+    MAIL_USE_TLS=true
+    MAIL_USE_SSL=false
+    MAIL_USERNAME=custpriority@fozifoot.com
+    MAIL_PASSWORD=mot_de_passe_de_la_boite_email
+
+    Le code reste compatible avec le port 465 si MAIL_USE_SSL=true.
+    """
 
     sender_email = os.environ.get("MAIL_USERNAME", MAIL_USERNAME)
     sender_password = os.environ.get("MAIL_PASSWORD", MAIL_PASSWORD)
     mail_server = os.environ.get("MAIL_SERVER", MAIL_SERVER)
     mail_port = int(os.environ.get("MAIL_PORT", MAIL_PORT))
+    use_ssl = os.environ.get("MAIL_USE_SSL", str(MAIL_USE_SSL)).lower() == "true"
+    use_tls = os.environ.get("MAIL_USE_TLS", str(MAIL_USE_TLS)).lower() == "true"
 
     if not sender_email or not sender_password:
-        print("ERREUR EMAIL : MAIL_USERNAME ou MAIL_PASSWORD manquant.")
+        print("ERREUR EMAIL COMPLETE : MAIL_USERNAME ou MAIL_PASSWORD manquant dans Render.")
         return False
 
     message = EmailMessage()
-    message["Subject"] = "World Cup 2026 - Code de récupération"
+    message["Subject"] = "FoziFoot - Code de récupération"
     message["From"] = sender_email
     message["To"] = to_email
 
     message.set_content(f"""
 Bonjour,
 
-Votre code de récupération World Cup 2026 est :
+Votre code de récupération FoziFoot est :
 
 {code}
 
 Si vous n'avez pas demandé ce code, ignorez simplement cet email.
 
-World Cup 2026
+FoziFoot
 Contact : custpriority@fozifoot.com
 WaZisTour LTD
 """)
 
     try:
-        with smtplib.SMTP_SSL(mail_server, mail_port) as smtp:
-            smtp.login(sender_email, sender_password)
-            smtp.send_message(message)
+        if use_ssl or mail_port == 465:
+            with smtplib.SMTP_SSL(mail_server, mail_port, timeout=30) as smtp:
+                smtp.login(sender_email, sender_password)
+                smtp.send_message(message)
+        else:
+            with smtplib.SMTP(mail_server, mail_port, timeout=30) as smtp:
+                smtp.ehlo()
+                if use_tls:
+                    smtp.starttls()
+                    smtp.ehlo()
+                smtp.login(sender_email, sender_password)
+                smtp.send_message(message)
 
+        print("EMAIL RESET ENVOYÉ AVEC SUCCÈS À :", to_email)
         return True
 
     except Exception as e:
-        print("ERREUR EMAIL :", e)
+        print("ERREUR EMAIL COMPLETE :", repr(e))
         return False
 
 @app.route("/")
