@@ -1134,25 +1134,17 @@ def generate_group_code():
 
 def send_reset_email(to_email, code):
     """
-    Envoie le code de récupération.
+    Envoie le code de récupération FoziFoot.
 
-    Configuration recommandée Render / Titan SMTP :
-    MAIL_SERVER=smtp.titan.email
-    MAIL_PORT=587
-    MAIL_USE_TLS=true
-    MAIL_USE_SSL=false
-    MAIL_USERNAME=custpriority@fozifoot.com
-    MAIL_PASSWORD=mot_de_passe_de_la_boite_email
-
-    Le code reste compatible avec le port 465 si MAIL_USE_SSL=true.
+    Correction SMTP :
+    - Port 587 utilise SMTP + STARTTLS.
+    - Port 465 utilise SMTP_SSL.
+    - Le mot de passe n'est jamais écrit dans les logs.
+    - Si Titan refuse smtp.titan.email, le code essaie aussi le serveur GoDaddy/Titan.
     """
 
     sender_email = os.environ.get("MAIL_USERNAME", MAIL_USERNAME)
     sender_password = os.environ.get("MAIL_PASSWORD", MAIL_PASSWORD)
-    mail_server = os.environ.get("MAIL_SERVER", MAIL_SERVER)
-    mail_port = int(os.environ.get("MAIL_PORT", MAIL_PORT))
-    use_ssl = os.environ.get("MAIL_USE_SSL", str(MAIL_USE_SSL)).lower() == "true"
-    use_tls = os.environ.get("MAIL_USE_TLS", str(MAIL_USE_TLS)).lower() == "true"
 
     if not sender_email or not sender_password:
         print("ERREUR EMAIL COMPLETE : MAIL_USERNAME ou MAIL_PASSWORD manquant dans Render.")
@@ -1177,26 +1169,114 @@ Contact : custpriority@fozifoot.com
 WaZisTour LTD
 """)
 
-    try:
-        if use_ssl or mail_port == 465:
-            with smtplib.SMTP_SSL(mail_server, mail_port, timeout=30) as smtp:
-                smtp.login(sender_email, sender_password)
-                smtp.send_message(message)
-        else:
-            with smtplib.SMTP(mail_server, mail_port, timeout=30) as smtp:
-                smtp.ehlo()
-                if use_tls:
-                    smtp.starttls()
-                    smtp.ehlo()
-                smtp.login(sender_email, sender_password)
-                smtp.send_message(message)
+    # Configuration prioritaire depuis Render
+    primary_server = os.environ.get("MAIL_SERVER", MAIL_SERVER)
+    primary_port = int(os.environ.get("MAIL_PORT", MAIL_PORT))
+    primary_ssl = os.environ.get("MAIL_USE_SSL", str(MAIL_USE_SSL)).lower() == "true"
+    primary_tls = os.environ.get("MAIL_USE_TLS", str(MAIL_USE_TLS)).lower() == "true"
 
-        print("EMAIL RESET ENVOYÉ AVEC SUCCÈS À :", to_email)
-        return True
+    smtp_attempts = [
+        {
+            "server": primary_server,
+            "port": primary_port,
+            "use_ssl": primary_ssl,
+            "use_tls": primary_tls,
+            "label": "Render configuration"
+        },
+        {
+            "server": "smtp.titan.email",
+            "port": 587,
+            "use_ssl": False,
+            "use_tls": True,
+            "label": "Titan STARTTLS 587"
+        },
+        {
+            "server": "smtp.titan.email",
+            "port": 465,
+            "use_ssl": True,
+            "use_tls": False,
+            "label": "Titan SSL 465"
+        },
+        {
+            "server": "smtpout.secureserver.net",
+            "port": 587,
+            "use_ssl": False,
+            "use_tls": True,
+            "label": "GoDaddy STARTTLS 587"
+        },
+        {
+            "server": "smtpout.secureserver.net",
+            "port": 465,
+            "use_ssl": True,
+            "use_tls": False,
+            "label": "GoDaddy SSL 465"
+        },
+    ]
 
-    except Exception as e:
-        print("ERREUR EMAIL COMPLETE :", repr(e))
-        return False
+    # Certains fournisseurs acceptent l'adresse complète, d'autres seulement le nom local.
+    usernames_to_try = [sender_email]
+    if "@" in sender_email:
+        usernames_to_try.append(sender_email.split("@")[0])
+
+    seen = set()
+    last_error = None
+
+    for attempt in smtp_attempts:
+        for smtp_username in usernames_to_try:
+            key = (
+                attempt["server"],
+                attempt["port"],
+                attempt["use_ssl"],
+                attempt["use_tls"],
+                smtp_username,
+            )
+
+            if key in seen:
+                continue
+
+            seen.add(key)
+
+            print(
+                "TEST SMTP:",
+                attempt["label"],
+                "| server=", attempt["server"],
+                "| port=", attempt["port"],
+                "| ssl=", attempt["use_ssl"],
+                "| tls=", attempt["use_tls"],
+                "| username=", smtp_username
+            )
+
+            try:
+                if attempt["use_ssl"]:
+                    with smtplib.SMTP_SSL(
+                        attempt["server"],
+                        attempt["port"],
+                        timeout=30
+                    ) as smtp:
+                        smtp.login(smtp_username, sender_password)
+                        smtp.send_message(message)
+                else:
+                    with smtplib.SMTP(
+                        attempt["server"],
+                        attempt["port"],
+                        timeout=30
+                    ) as smtp:
+                        smtp.ehlo()
+                        if attempt["use_tls"]:
+                            smtp.starttls()
+                            smtp.ehlo()
+                        smtp.login(smtp_username, sender_password)
+                        smtp.send_message(message)
+
+                print("EMAIL RESET ENVOYÉ AVEC SUCCÈS À :", to_email)
+                return True
+
+            except Exception as e:
+                last_error = e
+                print("ERREUR SMTP POUR", attempt["label"], ":", repr(e))
+
+    print("ERREUR EMAIL COMPLETE : tous les essais SMTP ont échoué :", repr(last_error))
+    return False
 
 @app.route("/")
 def home():
