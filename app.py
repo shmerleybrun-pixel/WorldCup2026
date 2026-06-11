@@ -3,6 +3,7 @@ import random
 import string
 import smtplib
 import requests
+import unicodedata
 from datetime import timedelta, date, datetime
 from functools import wraps
 from io import BytesIO
@@ -11,6 +12,8 @@ from email.message import EmailMessage
 from zoneinfo import ZoneInfo
 
 FOOTBALL_API_KEY = os.getenv("FOOTBALL_API_KEY")
+LAST_LIVE_SYNC_AT = None
+LAST_LIVE_SYNC_RESULT = {"updated": 0, "api_results": 0, "message": "Jamais synchronisé"}
 
 from flask import (
     Flask,
@@ -292,6 +295,230 @@ TEAM_ALIASES = {
     "Korea Republic": ["Korea Republic", "South Korea"],
     "South Korea": ["Korea Republic", "South Korea"],
 }
+
+
+# =====================================================
+# API-FOOTBALL / LIVE SCORES
+# =====================================================
+def normalize_team_for_api(name):
+    """Normalise un nom d'équipe pour comparer FoziFoot avec API-Football."""
+    if not name:
+        return ""
+
+    value = str(name).strip().lower()
+    value = unicodedata.normalize("NFKD", value)
+    value = "".join(ch for ch in value if not unicodedata.combining(ch))
+
+    replacements = {
+        "u.s.a.": "usa",
+        "u.s.a": "usa",
+        "united states of america": "usa",
+        "united states": "usa",
+        "usa": "usa",
+        "ir iran": "iran",
+        "iran": "iran",
+        "korea republic": "south korea",
+        "south korea": "south korea",
+        "cote d'ivoire": "ivory coast",
+        "cote divoire": "ivory coast",
+        "côte d'ivoire": "ivory coast",
+        "ivory coast": "ivory coast",
+        "dr congo": "congo dr",
+        "congo dr": "congo dr",
+        "democratic republic of congo": "congo dr",
+        "turkiye": "turkey",
+        "türkiye": "turkey",
+        "turkey": "turkey",
+        "curacao": "curacao",
+        "curaçao": "curacao",
+        "cabo verde": "cape verde",
+        "cape verde": "cape verde",
+    }
+
+    return replacements.get(value, value)
+
+
+def team_names_match(local_name, api_name):
+    """Compare deux noms d'équipes, avec aliases FoziFoot + normalisation."""
+    if normalize_team_for_api(local_name) == normalize_team_for_api(api_name):
+        return True
+
+    for candidate in TEAM_ALIASES.get(local_name, [local_name]):
+        if normalize_team_for_api(candidate) == normalize_team_for_api(api_name):
+            return True
+
+    for candidate in TEAM_ALIASES.get(api_name, [api_name]):
+        if normalize_team_for_api(candidate) == normalize_team_for_api(local_name):
+            return True
+
+    return False
+
+
+def find_local_match_for_api(home_team, away_team, fixture_date=None):
+    """Trouve dans PostgreSQL le match correspondant à un match API-Football."""
+    query = Match.query
+
+    if fixture_date:
+        query = query.filter_by(match_date=fixture_date)
+
+    candidates = query.all()
+
+    for match in candidates:
+        same_order = (
+            team_names_match(match.team1, home_team)
+            and team_names_match(match.team2, away_team)
+        )
+
+        reverse_order = (
+            team_names_match(match.team1, away_team)
+            and team_names_match(match.team2, home_team)
+        )
+
+        if same_order or reverse_order:
+            return match, reverse_order
+
+    return None, False
+
+
+def fetch_api_football_fixtures(params):
+    """Appelle API-Football en gardant les erreurs sous contrôle."""
+    api_key = os.environ.get("FOOTBALL_API_KEY")
+
+    if not api_key:
+        return {"errors": ["FOOTBALL_API_KEY manquant dans Render"], "response": []}
+
+    url = "https://v3.football.api-sports.io/fixtures"
+    headers = {"x-apisports-key": api_key}
+
+    response = requests.get(url, headers=headers, params=params, timeout=20)
+    response.raise_for_status()
+    return response.json()
+
+
+def update_matches_from_api_response(data):
+    """Met à jour les scores FoziFoot à partir d'une réponse API-Football."""
+    updated = 0
+    api_results = len(data.get("response", []))
+
+    for item in data.get("response", []):
+        fixture = item.get("fixture", {})
+        teams = item.get("teams", {})
+        goals = item.get("goals", {})
+
+        home = teams.get("home", {}).get("name")
+        away = teams.get("away", {}).get("name")
+        score_home = goals.get("home")
+        score_away = goals.get("away")
+
+        fixture_date = None
+        fixture_iso = fixture.get("date")
+        if fixture_iso:
+            try:
+                fixture_date = fixture_iso[:10]
+            except Exception:
+                fixture_date = None
+
+        if not home or not away:
+            continue
+
+        match, reverse_order = find_local_match_for_api(home, away, fixture_date)
+
+        # Si l'API n'utilise pas la même date/timezone, on retente sans filtre de date.
+        if not match:
+            match, reverse_order = find_local_match_for_api(home, away)
+
+        if not match:
+            print("API LIVE : match non trouvé localement:", home, "vs", away)
+            continue
+
+        if score_home is not None and score_away is not None:
+            old_score = (match.score1, match.score2)
+
+            if reverse_order:
+                match.score1 = score_away
+                match.score2 = score_home
+            else:
+                match.score1 = score_home
+                match.score2 = score_away
+
+            new_score = (match.score1, match.score2)
+
+            if old_score != new_score:
+                updated += 1
+                print(
+                    "API LIVE : score mis à jour:",
+                    match.team1,
+                    match.score1,
+                    "-",
+                    match.score2,
+                    match.team2,
+                )
+
+    if updated > 0:
+        db.session.commit()
+    else:
+        db.session.rollback()
+
+    return {"updated": updated, "api_results": api_results}
+
+
+def sync_today_live_scores(force=False):
+    """
+    Synchronise les scores du jour.
+    Appelée automatiquement sur l'accueil et par /api/today-matches.
+    Protection : évite d'appeler l'API trop souvent sur le plan gratuit.
+    """
+    global LAST_LIVE_SYNC_AT, LAST_LIVE_SYNC_RESULT
+
+    now = datetime.utcnow()
+
+    if not force and LAST_LIVE_SYNC_AT:
+        seconds_since_last_sync = (now - LAST_LIVE_SYNC_AT).total_seconds()
+        if seconds_since_last_sync < 60:
+            return LAST_LIVE_SYNC_RESULT
+
+    try:
+        today_db = date.today().isoformat()
+
+        # 1) Matchs du jour World Cup 2026
+        data = fetch_api_football_fixtures({
+            "league": 1,
+            "season": 2026,
+            "date": today_db,
+        })
+
+        result = update_matches_from_api_response(data)
+
+        # 2) Si aucun match n'est retourné, on vérifie les matchs live toutes compétitions.
+        # Utile quand API-Football ne classe pas encore le match sous league=1/season=2026.
+        if result.get("api_results", 0) == 0:
+            live_data = fetch_api_football_fixtures({"live": "all"})
+            live_result = update_matches_from_api_response(live_data)
+            result["updated"] += live_result.get("updated", 0)
+            result["api_results"] += live_result.get("api_results", 0)
+
+        LAST_LIVE_SYNC_AT = now
+        LAST_LIVE_SYNC_RESULT = {
+            "updated": result.get("updated", 0),
+            "api_results": result.get("api_results", 0),
+            "message": "Synchronisation live OK",
+            "synced_at": now.isoformat() + "Z",
+        }
+
+        print("API LIVE :", LAST_LIVE_SYNC_RESULT)
+        return LAST_LIVE_SYNC_RESULT
+
+    except Exception as e:
+        LAST_LIVE_SYNC_AT = now
+        LAST_LIVE_SYNC_RESULT = {
+            "updated": 0,
+            "api_results": 0,
+            "message": "Erreur sync live",
+            "error": repr(e),
+            "synced_at": now.isoformat() + "Z",
+        }
+        print("ERREUR API LIVE :", repr(e))
+        return LAST_LIVE_SYNC_RESULT
 
 def prediction_points(prediction):
     match = prediction.match
@@ -1415,6 +1642,10 @@ WaZisTour LTD
 def home():
     today_db = date.today().isoformat()
 
+    # Synchronisation automatique des scores live avant affichage de l'accueil.
+    # Si l'API ne répond pas, la page continue avec les données PostgreSQL existantes.
+    sync_today_live_scores()
+
     matchs_du_jour = Match.query.filter_by(
         match_date=today_db
     ).order_by(
@@ -1462,6 +1693,7 @@ def api_today_matches():
     Endpoint JSON pour la section Live Scores de la page d'accueil.
     Le navigateur l'appelle régulièrement pour détecter un nouveau but.
     """
+    sync_result = sync_today_live_scores()
     today_db = date.today().isoformat()
 
     matchs = Match.query.filter_by(
@@ -1474,6 +1706,7 @@ def api_today_matches():
     return {
         "date": today_db,
         "updated_at": datetime.utcnow().isoformat() + "Z",
+        "sync": sync_result,
         "matches": [
             {
                 "id": match.id,
@@ -4009,51 +4242,37 @@ def debug_users():
 @app.route("/admin/sync-fifa")
 @admin_required
 def admin_sync_fifa():
-    api_key = os.environ.get("FOOTBALL_API_KEY")
-
-    if not api_key:
+    """Synchronisation manuelle des scores depuis l'admin."""
+    if not os.environ.get("FOOTBALL_API_KEY"):
         return "FOOTBALL_API_KEY manquant dans Render", 500
 
-    url = "https://v3.football.api-sports.io/fixtures"
-    headers = {"x-apisports-key": api_key}
+    result = sync_today_live_scores(force=True)
 
-    params = {
+    return f"""
+    <h2>Synchronisation FIFA API terminée</h2>
+    <p><strong>Matchs API trouvés :</strong> {result.get('api_results', 0)}</p>
+    <p><strong>Scores mis à jour :</strong> {result.get('updated', 0)}</p>
+    <p><strong>Message :</strong> {result.get('message', '')}</p>
+    <p><strong>Heure :</strong> {result.get('synced_at', '')}</p>
+    <p><a href="/">Retour accueil</a> | <a href="/admin/sync-fifa">Relancer la synchronisation</a></p>
+    """
+
+
+@app.route("/admin/test-worldcup-api")
+@admin_required
+def test_worldcup_api():
+    """Test brut API-Football pour vérifier la clé et les matchs World Cup 2026."""
+    if not os.environ.get("FOOTBALL_API_KEY"):
+        return "FOOTBALL_API_KEY manquant dans Render", 500
+
+    today_db = date.today().isoformat()
+    data = fetch_api_football_fixtures({
         "league": 1,
-        "season": 2026
-    }
+        "season": 2026,
+        "date": today_db,
+    })
 
-    response = requests.get(url, headers=headers, params=params, timeout=20)
-    data = response.json()
-
-    updated = 0
-
-    for item in data.get("response", []):
-        fixture = item.get("fixture", {})
-        teams = item.get("teams", {})
-        goals = item.get("goals", {})
-
-        home = teams.get("home", {}).get("name")
-        away = teams.get("away", {}).get("name")
-
-        score1 = goals.get("home")
-        score2 = goals.get("away")
-
-        if home is None or away is None:
-            continue
-
-        match = Match.query.filter_by(
-            team1=home,
-            team2=away
-        ).first()
-
-        if match and score1 is not None and score2 is not None:
-            match.score1 = score1
-            match.score2 = score2
-            updated += 1
-
-    db.session.commit()
-
-    return f"Sync FIFA terminée. Matchs mis à jour : {updated}"
+    return data
 
 
 if __name__ == "__main__":
