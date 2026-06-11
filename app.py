@@ -444,6 +444,36 @@ class LiveVideo(db.Model):
     embed_url = db.Column(db.Text)
     is_active = db.Column(db.Boolean, default=False)
 
+
+def init_database():
+    """
+    Initialise automatiquement la base de données au démarrage.
+    Important pour Render/Gunicorn : ce bloc doit s'exécuter aussi quand
+    l'application est importée par `gunicorn app:app`, pas seulement avec
+    `python app.py`.
+    """
+
+    db.create_all()
+
+    admin_user = Admin.query.first()
+
+    if admin_user is None:
+        admin_user = Admin(
+            username="admin",
+            password=generate_password_hash("admin123")
+        )
+
+        db.session.add(admin_user)
+        db.session.commit()
+
+        print("Admin créé : admin / admin123")
+    else:
+        print("Admin existant :", admin_user.username)
+
+
+with app.app_context():
+    init_database()
+
 def group_stage_complete():
     matchs_restants = Match.query.filter(
         (Match.score1 == None) | (Match.score2 == None)
@@ -2465,14 +2495,6 @@ def admin_users():
     result += "</table>"
 
     return result
-
-from app import app, db, Visitor
-
-with app.app_context():
-    users = Visitor.query.all()
-
-    for u in users:
-        print(u.id, u.full_name, u.email)
 
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
