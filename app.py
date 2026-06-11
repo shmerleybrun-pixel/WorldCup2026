@@ -4009,17 +4009,20 @@ def debug_users():
 @app.route("/admin/test-api")
 @admin_required
 def test_api():
+    api_key = os.environ.get("FOOTBALL_API_KEY")
+
+    if not api_key:
+        return "FOOTBALL_API_KEY manquant dans Render", 500
 
     url = "https://v3.football.api-sports.io/fixtures?live=all"
 
     headers = {
-        "x-apisports-key": FOOTBALL_API_KEY
+        "x-apisports-key": api_key
     }
 
-    r = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=20)
 
-    return r.text
-
+    return response.text
 
 if __name__ == "__main__":
 
