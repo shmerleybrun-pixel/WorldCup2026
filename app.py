@@ -2458,6 +2458,14 @@ def admin_users():
 
     return result
 
+from app import app, db, Visitor
+
+with app.app_context():
+    users = Visitor.query.all()
+
+    for u in users:
+        print(u.id, u.full_name, u.email)
+
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
 
@@ -2955,6 +2963,18 @@ Sitemap: https://fozifoot.com/sitemap.xml
         robots_txt,
         mimetype="text/plain"
     )
+
+@app.route("/debug-users")
+def debug_users():
+
+    users = Visitor.query.all()
+
+    result = ""
+
+    for u in users:
+        result += f"{u.id} - {u.full_name} - {u.email}<br>"
+
+    return result
 
 
 if __name__ == "__main__":
