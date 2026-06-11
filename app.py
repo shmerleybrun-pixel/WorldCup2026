@@ -1380,8 +1380,8 @@ def login_required(f):
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form["email_or_username"]
-        password = request.form["password"]
+        username = request.form.get("email_or_username", "").strip()
+        password = request.form.get("password", "")
 
         admin = Admin.query.filter_by(username=username).first()
 
@@ -1392,7 +1392,11 @@ def login():
             session["admin"] = True
             return redirect("/admin/matchs")
 
-        visitor = Visitor.query.filter_by(email=username).first()
+        normalized_email = username.lower()
+
+        visitor = Visitor.query.filter(
+            db.func.lower(Visitor.email) == normalized_email
+        ).first()
 
         if visitor and check_password_hash(visitor.password, password):
             session.clear()
@@ -1401,11 +1405,13 @@ def login():
             session["visitor_id"] = visitor.id
             session["visitor_name"] = visitor.full_name
             return redirect("/predictions")
- 
-        return "Identifiant ou mot de passe incorrect."
+
+        return render_template(
+            "login.html",
+            error="Identifiant ou mot de passe incorrect."
+        )
 
     return render_template("login.html")
-
 
 @app.route("/admin")
 def admin_redirect():
@@ -1750,12 +1756,12 @@ def visitor_register():
 
     if request.method == "POST":
 
-        full_name = request.form["full_name"]
-        email = request.form["email"]
-        password = request.form["password"]
+        full_name = request.form.get("full_name", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
 
-        existing_visitor = Visitor.query.filter_by(
-            email=email
+        existing_visitor = Visitor.query.filter(
+            db.func.lower(Visitor.email) == email
         ).first()
 
         if existing_visitor:
@@ -2429,10 +2435,26 @@ def private_group_predictions(code):
 def admin_users():
     users = Visitor.query.order_by(Visitor.id.desc()).all()
 
-    result = "<h1>Utilisateurs enregistrés</h1>"
+    result = """
+    <h1>Utilisateurs enregistrés</h1>
+    <table border="1" cellpadding="8" cellspacing="0">
+        <tr>
+            <th>ID</th>
+            <th>Nom complet</th>
+            <th>Email</th>
+        </tr>
+    """
 
     for user in users:
-        result += f"<p>{user.id} - {user.full_name} - {user.email}</p>"
+        result += f"""
+        <tr>
+            <td>{user.id}</td>
+            <td>{user.full_name}</td>
+            <td>{user.email}</td>
+        </tr>
+        """
+
+    result += "</table>"
 
     return result
 
@@ -2441,6 +2463,12 @@ def forgot_password():
 
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
+
+        if not email:
+            return render_template(
+                "forgot_password.html",
+                error="Veuillez entrer votre adresse email."
+            )
 
         visitor = Visitor.query.filter(
             db.func.lower(Visitor.email) == email
@@ -2465,7 +2493,7 @@ def forgot_password():
             if not email_sent:
                 return render_template(
                     "forgot_password.html",
-                    error="Impossible d'envoyer le code. Vérifie la configuration email."
+                    error="Compte trouvé, mais impossible d'envoyer le code. Vérifie la configuration email sur Render."
                 )
 
             return redirect("/verify-reset-code")
@@ -2476,20 +2504,6 @@ def forgot_password():
         )
 
     return render_template("forgot_password.html")
-
-@app.route("/admin/users")
-@admin_required
-def admin_users():
-    users = Visitor.query.all()
-
-    result = "<h1>Utilisateurs enregistrés</h1>"
-
-    for user in users:
-        result += f"<p>{user.id} - {user.full_name} - {user.email}</p>"
-
-    return result
-
-
 @app.route("/verify-reset-code", methods=["GET", "POST"])
 def verify_reset_code():
 
