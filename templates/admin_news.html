@@ -1,91 +1,126 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
-    <title>Admin Actualités - World Cup 2026</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualités - Admin FoziFoot</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-
 <body>
 
 {% include 'navbar.html' %}
 
-<main class="container my-5">
+<div class="container mt-5 pt-5 mb-5">
+    <h2 class="text-center fw-bold mb-4">Actualités, vidéos et photos</h2>
 
-    <h1 class="fw-bold mb-4">Administration des actualités</h1>
-
-    <form method="POST" class="card p-4 shadow-sm mb-5">
-
-        <div class="mb-3">
-            <label class="form-label">Titre</label>
-            <input type="text" name="title" class="form-control" required>
+    <div class="card shadow-lg border-0 mb-4">
+        <div class="card-header bg-primary text-white fw-bold">
+            {% if edit_item %}Modifier une actualité{% else %}Ajouter une actualité{% endif %}
         </div>
+        <div class="card-body">
+            <form method="POST" action="{% if edit_item %}/admin/news/edit/{{ edit_item.id }}{% else %}/admin/news{% endif %}">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Titre</label>
+                    <input type="text" name="title" class="form-control" required
+                           value="{{ edit_item.title if edit_item else '' }}">
+                </div>
 
-        <div class="mb-3">
-            <label class="form-label">Contenu</label>
-            <textarea name="content" class="form-control" rows="4" required></textarea>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Texte / résumé</label>
+                    <textarea name="content" class="form-control" rows="4" required>{{ edit_item.content if edit_item else '' }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Lien vidéo résumé YouTube/Facebook</label>
+                    <input type="text" name="video_url" class="form-control"
+                           placeholder="https://www.youtube.com/watch?v=... ou lien Facebook"
+                           value="{{ edit_item.video_url if edit_item and edit_item.video_url else '' }}">
+                    <div class="form-text">Colle ici le lien du résumé vidéo du match. Tu peux aussi coller un lien iframe YouTube/Facebook.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Photo / image</label>
+                    <input type="text" name="image" class="form-control"
+                           placeholder="/static/images/photo.jpg ou https://..."
+                           value="{{ edit_item.image if edit_item and edit_item.image else '' }}">
+                    <div class="form-text">Tu peux mettre une image locale du dossier static/images ou une image externe.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Lien optionnel</label>
+                    <input type="text" name="link" class="form-control"
+                           placeholder="Lien vers article, résumé complet, page officielle..."
+                           value="{{ edit_item.link if edit_item and edit_item.link else '' }}">
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    {% if edit_item %}Enregistrer les modifications{% else %}Publier l'actualité{% endif %}
+                </button>
+
+                {% if edit_item %}
+                    <a href="/admin/news" class="btn btn-secondary ms-2">Annuler</a>
+                {% endif %}
+            </form>
         </div>
+    </div>
 
-        <div class="mb-3">
-            <label class="form-label">Lien optionnel</label>
-            <input type="text" name="link" class="form-control" placeholder="/anecdotes ou /equipes">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-dark text-white fw-bold">Actualités publiées</div>
+        <div class="card-body table-responsive">
+            <table class="table table-striped table-bordered align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Titre</th>
+                        <th>Vidéo</th>
+                        <th>Photo</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in news_items %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>
+                            <strong>{{ item.title }}</strong><br>
+                            <small class="text-muted">{{ item.content[:90] }}{% if item.content|length > 90 %}...{% endif %}</small>
+                        </td>
+                        <td>
+                            {% if item.video_url %}
+                                <span class="badge bg-danger">Vidéo</span>
+                            {% else %}
+                                <span class="text-muted">Non</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.image %}
+                                <span class="badge bg-primary">Photo</span>
+                            {% else %}
+                                <span class="text-muted">Non</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="/admin/news/edit/{{ item.id }}" class="btn btn-warning btn-sm">Modifier</a>
+                            <form method="POST" action="/admin/news/delete/{{ item.id }}" class="d-inline"
+                                  onsubmit="return confirm('Supprimer cette actualité ?');">
+                                <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">Aucune actualité publiée.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-        
-        <div class="mb-3">
-             <label class="form-label">Image</label>
-             <input type="text"
-                    name="image"
-                    class="form-control"
-                    placeholder="haiti.jpg ou worldcup.jpg">
-        </div>
-
-        <button class="btn btn-success">Ajouter l’actualité</button>
-
-    </form>
-
-    <table class="table table-bordered table-striped align-middle">
-        <thead class="table-dark">
-            <tr>
-                <th>#</th>
-                <th>Titre</th>
-                <th>Contenu</th>
-                <th>Lien</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            {% for article in news %}
-            <tr>
-                <td>{{ loop.index }}</td>
-                <td><strong>{{ article.title }}</strong></td>
-                <td>{{ article.content }}</td>
-                <td>{{ article.link }}</td>
-                <td>
-                    <a href="/admin/news/edit/{{ article.id }}" class="btn btn-warning btn-sm">Modifier</a>
-                    <a href="/admin/news/delete/{{ article.id }}"
-                       class="btn btn-danger btn-sm"
-                       onclick="return confirm('Supprimer cette actualité ?');">
-                        Supprimer
-                    </a>
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="5" class="text-center text-muted">Aucune actualité ajoutée.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-</main>
+    </div>
+</div>
 
 {% include 'footer.html' %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

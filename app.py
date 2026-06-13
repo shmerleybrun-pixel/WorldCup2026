@@ -3,7 +3,9 @@ import random
 import string
 import smtplib
 import requests
+import re
 import unicodedata
+from urllib.parse import urlparse, parse_qs, quote
 from datetime import timedelta, date, datetime
 from functools import wraps
 from io import BytesIO
@@ -29,6 +31,7 @@ from flask import (
 from flask_babel import Babel, gettext as _
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import text
 
 from reportlab.platypus import (
     SimpleDocTemplate,
@@ -636,6 +639,54 @@ def date_fr(date_string):
         return date_string
 
 
+def extract_video_embed_url(video_url):
+    """Transforme un lien YouTube/Facebook en lien d'intégration iframe."""
+    if not video_url:
+        return ""
+
+    raw_url = str(video_url).strip()
+
+    # Si l'admin colle directement un iframe, on récupère son src.
+    if "<iframe" in raw_url.lower() and "src=" in raw_url.lower():
+        match = re.search(r'src=["\']([^"\']+)["\']', raw_url, re.IGNORECASE)
+        if match:
+            return match.group(1)
+
+    try:
+        parsed = urlparse(raw_url)
+        host = parsed.netloc.lower()
+        path = parsed.path.strip("/")
+
+        if "youtube.com" in host:
+            if path.startswith("embed/"):
+                return raw_url
+            query = parse_qs(parsed.query)
+            video_id = query.get("v", [""])[0]
+            if video_id:
+                return f"https://www.youtube.com/embed/{video_id}"
+            if path.startswith("shorts/"):
+                video_id = path.split("/")[-1]
+                return f"https://www.youtube.com/embed/{video_id}"
+
+        if "youtu.be" in host:
+            video_id = path.split("/")[0]
+            if video_id:
+                return f"https://www.youtube.com/embed/{video_id}"
+
+        if "facebook.com" in host or "fb.watch" in host:
+            return "https://www.facebook.com/plugins/video.php?href=" + quote(raw_url, safe="") + "&show_text=false&width=560"
+
+        return raw_url
+
+    except Exception:
+        return raw_url
+
+
+@app.template_filter("video_embed")
+def video_embed(video_url):
+    return extract_video_embed_url(video_url)
+
+
 class Match(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     group_name = db.Column(db.String(2))
@@ -688,6 +739,7 @@ class News(db.Model):
     content = db.Column(db.Text)
     link = db.Column(db.String(200), nullable=True)
     image = db.Column(db.String(200), nullable=True)
+    video_url = db.Column(db.Text, nullable=True)
 
 class Visitor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -1377,6 +1429,21 @@ def seed_worldcup_matches():
     )
 
 
+def ensure_news_media_columns():
+    """Ajoute automatiquement les colonnes média des actualités en production."""
+    try:
+        inspector = db.inspect(db.engine)
+        columns = [column["name"] for column in inspector.get_columns("news")]
+
+        if "video_url" not in columns:
+            db.session.execute(text("ALTER TABLE news ADD COLUMN video_url TEXT"))
+            db.session.commit()
+            print("Colonne news.video_url ajoutée")
+    except Exception as e:
+        db.session.rollback()
+        print("INFO MIGRATION NEWS :", repr(e))
+
+
 def init_database():
     """
     Initialise automatiquement la base de données au démarrage.
@@ -1386,6 +1453,7 @@ def init_database():
     """
 
     db.create_all()
+    ensure_news_media_columns()
 
     admin_user = Admin.query.first()
 
@@ -1672,7 +1740,7 @@ def home():
     ).limit(3).all()
     
     live_video = LiveVideo.query.filter_by(is_active=True).first()
-    news = News.query.order_by(News.id.desc()).limit(3).all()
+    news = News.query.order_by(News.id.desc()).limit(12).all()
 
     return render_template(
         "index.html",
@@ -3935,6 +4003,71 @@ def dashboard():
         active_page="dashboard"
     )
 
+
+
+# =====================================================
+# ADMIN ACTUALITÉS / RÉSUMÉS VIDÉOS / PHOTOS
+# =====================================================
+
+@app.route("/admin/news", methods=["GET", "POST"])
+@admin_required
+def admin_news():
+    if request.method == "POST":
+        news_item = News(
+            title=request.form.get("title", "").strip(),
+            content=request.form.get("content", "").strip(),
+            link=request.form.get("link", "").strip() or None,
+            image=request.form.get("image", "").strip() or None,
+            video_url=request.form.get("video_url", "").strip() or None,
+        )
+
+        if news_item.title:
+            db.session.add(news_item)
+            db.session.commit()
+
+        return redirect("/admin/news")
+
+    news_items = News.query.order_by(News.id.desc()).all()
+
+    return render_template(
+        "admin_news.html",
+        news_items=news_items,
+        active_page="admin_news"
+    )
+
+
+@app.route("/admin/news/edit/<int:news_id>", methods=["GET", "POST"])
+@admin_required
+def admin_news_edit(news_id):
+    news_item = News.query.get_or_404(news_id)
+
+    if request.method == "POST":
+        news_item.title = request.form.get("title", "").strip()
+        news_item.content = request.form.get("content", "").strip()
+        news_item.link = request.form.get("link", "").strip() or None
+        news_item.image = request.form.get("image", "").strip() or None
+        news_item.video_url = request.form.get("video_url", "").strip() or None
+
+        db.session.commit()
+        return redirect("/admin/news")
+
+    news_items = News.query.order_by(News.id.desc()).all()
+
+    return render_template(
+        "admin_news.html",
+        news_items=news_items,
+        edit_item=news_item,
+        active_page="admin_news"
+    )
+
+
+@app.route("/admin/news/delete/<int:news_id>", methods=["POST"])
+@admin_required
+def admin_news_delete(news_id):
+    news_item = News.query.get_or_404(news_id)
+    db.session.delete(news_item)
+    db.session.commit()
+    return redirect("/admin/news")
 
 @app.route("/admin/live-video", methods=["GET", "POST"])
 @admin_required

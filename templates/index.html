@@ -229,6 +229,117 @@
         to { opacity: 1; }
     }
 
+
+    .news-carousel-wrapper {
+        position: relative;
+    }
+
+    .news-scroll-row {
+        display: flex;
+        gap: 18px;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        padding: 10px 6px 20px;
+        scrollbar-width: thin;
+    }
+
+    .news-scroll-row::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .news-scroll-row::-webkit-scrollbar-thumb {
+        background: rgba(13, 110, 253, 0.55);
+        border-radius: 999px;
+    }
+
+    .news-slide-card {
+        flex: 0 0 330px;
+        max-width: 330px;
+        border-radius: 18px;
+        overflow: hidden;
+        background: #ffffff;
+        border: 0;
+    }
+
+    .news-media-box {
+        width: 100%;
+        height: 190px;
+        background: #071a3d;
+        overflow: hidden;
+    }
+
+    .news-media-box iframe,
+    .news-media-box img {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        object-fit: cover;
+        display: block;
+    }
+
+    .news-extra-photo {
+        width: 100%;
+        height: 110px;
+        object-fit: cover;
+        border-radius: 12px;
+        margin-top: 12px;
+    }
+
+    .news-scroll-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(7, 26, 61, 0.9);
+        color: #ffffff;
+        font-size: 28px;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.25s ease, transform 0.25s ease;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .news-carousel-wrapper:hover .news-scroll-btn {
+        opacity: 1;
+    }
+
+    .news-scroll-btn:hover {
+        transform: translateY(-50%) scale(1.08);
+        background: #0d6efd;
+    }
+
+    .news-scroll-left {
+        left: -10px;
+    }
+
+    .news-scroll-right {
+        right: -10px;
+    }
+
+    .news-type-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 2;
+        border-radius: 999px;
+        padding: 6px 11px;
+        font-size: 12px;
+        font-weight: 800;
+        color: #fff;
+        background: rgba(220, 53, 69, 0.95);
+    }
+
+    .news-media-container {
+        position: relative;
+    }
+
     @media (max-width: 991px) {
         .hero-row-fixed {
             flex-direction: column;
@@ -252,6 +363,17 @@
 
         .contest-popup-img {
             max-height: 85vh;
+        }
+
+        .news-slide-card {
+            flex-basis: 82vw;
+            max-width: 82vw;
+        }
+
+        .news-scroll-btn {
+            opacity: 0.9;
+            width: 40px;
+            height: 40px;
         }
     }
 </style>
@@ -513,49 +635,94 @@
 <div class="card shadow-lg border-0 news-home-card">
 
     <div class="card-header text-center fw-bold text-white">
-        Actualités du Mondial 2026
+        Actualités du Mondial 2026 • Résumés vidéo & photos
     </div>
 
     <div class="card-body">
 
-        <div class="row">
+        <div class="news-carousel-wrapper">
+            <button type="button" class="news-scroll-btn news-scroll-left" onclick="scrollNewsCarousel(-1)" aria-label="Défiler vers la gauche">‹</button>
+            <button type="button" class="news-scroll-btn news-scroll-right" onclick="scrollNewsCarousel(1)" aria-label="Défiler vers la droite">›</button>
 
-            <div class="col-lg-4 mb-4">
-                <div class="news-card h-100">
-                    <h4>Haïti de retour après 52 ans</h4>
-                    <p>
-                        Les Grenadiers retrouvent la Coupe du Monde pour la première fois depuis 1974.
-                    </p>
-                    <a href="/anecdotes" class="btn btn-primary btn-sm">
-                        Lire plus
-                    </a>
-                </div>
+            <div class="news-scroll-row" id="newsCarousel">
+
+                {% if news %}
+                    {% for item in news %}
+                    <div class="card news-slide-card shadow-sm">
+                        <div class="news-media-container">
+                            {% if item.video_url %}
+                                <span class="news-type-badge">▶ Résumé vidéo</span>
+                                <div class="news-media-box">
+                                    <iframe src="{{ item.video_url|video_embed }}"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                            allowfullscreen
+                                            loading="lazy">
+                                    </iframe>
+                                </div>
+                            {% elif item.image %}
+                                <span class="news-type-badge bg-primary">📸 Photo</span>
+                                <div class="news-media-box">
+                                    <img src="{{ item.image }}" alt="{{ item.title }}" loading="lazy">
+                                </div>
+                            {% else %}
+                                <div class="news-media-box d-flex align-items-center justify-content-center text-white fw-bold">
+                                    FoziFoot News
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="card-body">
+                            <h4 class="fw-bold">{{ item.title }}</h4>
+                            <p>{{ item.content }}</p>
+
+                            {% if item.video_url and item.image %}
+                                <img src="{{ item.image }}" alt="{{ item.title }}" class="news-extra-photo" loading="lazy">
+                            {% endif %}
+
+                            {% if item.link %}
+                                <a href="{{ item.link }}" class="btn btn-primary btn-sm mt-3" target="_blank" rel="noopener">
+                                    Voir plus
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="card news-slide-card shadow-sm">
+                        <div class="news-media-box d-flex align-items-center justify-content-center text-white fw-bold">
+                            FoziFoot
+                        </div>
+                        <div class="card-body">
+                            <h4>Haïti de retour après 52 ans</h4>
+                            <p>Les Grenadiers retrouvent la Coupe du Monde pour la première fois depuis 1974.</p>
+                            <a href="/anecdotes" class="btn btn-primary btn-sm">Lire plus</a>
+                        </div>
+                    </div>
+
+                    <div class="card news-slide-card shadow-sm">
+                        <div class="news-media-box d-flex align-items-center justify-content-center text-white fw-bold">
+                            World Cup 2026
+                        </div>
+                        <div class="card-body">
+                            <h4>Un Mondial à 48 équipes</h4>
+                            <p>Le tournoi 2026 devient le plus grand de l’histoire avec 104 matchs.</p>
+                            <a href="/groups" class="btn btn-primary btn-sm">Voir les groupes</a>
+                        </div>
+                    </div>
+
+                    <div class="card news-slide-card shadow-sm">
+                        <div class="news-media-box d-flex align-items-center justify-content-center text-white fw-bold">
+                            Nouveaux visages
+                        </div>
+                        <div class="card-body">
+                            <h4>Les nouveaux visages du tournoi</h4>
+                            <p>Curaçao, Cabo Verde, Jordanie et Ouzbékistan découvrent la Coupe du Monde.</p>
+                            <a href="/equipes" class="btn btn-primary btn-sm">Voir les équipes</a>
+                        </div>
+                    </div>
+                {% endif %}
+
             </div>
-
-            <div class="col-lg-4 mb-4">
-                <div class="news-card h-100">
-                    <h4>Un Mondial à 48 équipes</h4>
-                    <p>
-                        Le tournoi 2026 devient le plus grand de l’histoire avec 104 matchs.
-                    </p>
-                    <a href="/groups" class="btn btn-primary btn-sm">
-                        Voir les groupes
-                    </a>
-                </div>
-            </div>
-
-            <div class="col-lg-4 mb-4">
-                <div class="news-card h-100">
-                    <h4>Les nouveaux visages du tournoi</h4>
-                    <p>
-                        Curaçao, Cabo Verde, Jordanie et Ouzbékistan découvrent la Coupe du Monde.
-                    </p>
-                    <a href="/equipes" class="btn btn-primary btn-sm">
-                        Voir les équipes
-                    </a>
-                </div>
-            </div>
-
         </div>
 
     </div>
@@ -913,6 +1080,22 @@
         setInterval(refreshTodayMatches, 15000);
     });
 })();
+</script>
+
+<script>
+    function scrollNewsCarousel(direction) {
+        const carousel = document.getElementById("newsCarousel");
+
+        if (!carousel) {
+            return;
+        }
+
+        const scrollAmount = Math.min(380, carousel.clientWidth * 0.85);
+        carousel.scrollBy({
+            left: direction * scrollAmount,
+            behavior: "smooth"
+        });
+    }
 </script>
 
 </body>
