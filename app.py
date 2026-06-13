@@ -1640,7 +1640,8 @@ WaZisTour LTD
 @app.route("/")
 
 def home():
-    today_db = date.today().isoformat()
+    local_today = datetime.now(ZoneInfo(MATCH_TIMEZONE)).date()
+    today_db = local_today.isoformat()
 
     # Synchronisation automatique des scores live avant affichage de l'accueil.
     # Si l'API ne répond pas, la page continue avec les données PostgreSQL existantes.
@@ -1661,6 +1662,14 @@ def home():
     meilleur_passeur = PlayerAssist.query.order_by(
         PlayerAssist.assists.desc()
     ).first()
+
+    derniers_resultats = Match.query.filter(
+        Match.score1.isnot(None),
+        Match.score2.isnot(None)
+    ).order_by(
+        Match.match_date.desc(),
+        Match.match_time.desc()
+    ).limit(3).all()
     
     live_video = LiveVideo.query.filter_by(is_active=True).first()
     news = News.query.order_by(News.id.desc()).limit(3).all()
@@ -1676,6 +1685,7 @@ def home():
         meilleur_passeur=meilleur_passeur,
         news=news,
         live_video=live_video,
+        derniers_resultats=derniers_resultats,
         active_page="home"
     )
 
